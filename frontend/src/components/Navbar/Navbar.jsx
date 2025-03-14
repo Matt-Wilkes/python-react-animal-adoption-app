@@ -14,7 +14,7 @@ import { useEffect, useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 
-export const Navbar = () => {
+const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const { token, setToken } = useContext(AuthContext);
@@ -80,7 +80,7 @@ export const Navbar = () => {
               onClick={handleOpenNavMenu}
               sx={{ color: "#FFFACA" }}
             >
-              <MenuIcon />
+            <MenuIcon />
             </IconButton>
             <Menu
               id="menu-appbar"
@@ -105,27 +105,28 @@ export const Navbar = () => {
                 <Typography textAlign="center">Animals</Typography>
               </MenuItem>
               {!loggedIn && (
-                <>
+                <Menu>
                   <MenuItem component={Link} to="/sign-up" onClick={handleCloseNavMenu}>
                     <Typography textAlign="center">Signup</Typography>
                   </MenuItem>
                   <MenuItem component={Link} to="/login" onClick={handleCloseNavMenu}>
                     <Typography textAlign="center">Login</Typography>
                   </MenuItem>
-                </>
+                </Menu>
               )}
               {loggedIn && (
-                <>
+                <Menu>
                   <MenuItem component={Link} to="/create-advert" onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">Create Advert</Typography>
-                  </MenuItem>
-                  <MenuItem component={Link} to="/my-animals" onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">My Animals</Typography>
-                  </MenuItem>
-                  <MenuItem onClick={handleLogoutClick}>
-                    <Typography textAlign="center">Logout</Typography>
-                  </MenuItem>
-                </>
+                      <Typography textAlign="center">Create Advert</Typography>
+                    </MenuItem>
+                    <MenuItem component={Link} to="/my-animals" onClick={handleCloseNavMenu}>
+                      <Typography textAlign="center">My Animals</Typography>
+                    </MenuItem>
+                    <MenuItem onClick={handleLogoutClick}>
+                      <Typography textAlign="center">Logout</Typography>
+                    </MenuItem>
+                </Menu>
+
               )}
             </Menu>
           </Box>
