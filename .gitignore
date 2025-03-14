@@ -1,4 +1,4 @@
-*venv*  
+*_venv*  
 *pycache*
 .env
 node_modules

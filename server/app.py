@@ -52,7 +52,10 @@ class Animal(db.Model):
 
     def as_dict(self):
         animal_dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        shelter_info = Shelter.query.get(self.shelter_id)
+        shelter_info = db.session.get(Shelter, self.shelter_id)
+        # LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. 
+        # The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+        # shelter_info = Shelter.query.get(self.shelter_id)
 
         animal_dict['shelter'] = {
             'name': shelter_info.name,
@@ -107,7 +110,7 @@ class Shelter(db.Model):
 #     '@rspca.org.uk': 4
 # }
 
-# == Routes Here ==
+
 
 # decorator function used for sake of DRY
 def token_checker(f):
@@ -129,6 +132,7 @@ def token_checker(f):
         return f(*args, **kwargs)
 
     return decorated_function
+# == Routes Here ==
 
 # Listings route - return a list of all animals.
 @app.route('/listings', methods=['GET'])
