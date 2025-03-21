@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from db.database_connection import db_session
+from lib.database_connection import db_session
 from db.seed import Animal, Shelter, User
 from functools import wraps
 from controllers.auth import generate_token, decode_token
