@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm import sessionmaker
 
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Boolean, MetaData
-from sqlalchemy.orm import declarative_base
+from lib.models import Base, Animal, User, Shelter
 
 
 import os
@@ -28,61 +28,9 @@ connection = engine.connect()
 meta = MetaData()
 meta.reflect(bind=engine)
 
-Base = declarative_base()
 
 # Drop all tables and clear the database.
 meta.drop_all(bind=engine, tables=None, checkfirst=True)
-
-# Create the models.
-
-#############################################################
-
-class Animal(Base):
-    __tablename__ = 'animals'
-
-    id = Column(Integer(), primary_key=True)
-    name = Column(String(255))
-    species = Column(String(50))
-    age = Column(Integer)
-    breed = Column(String(50), nullable=False)
-    location = Column(String(50), nullable=False)
-    male = Column(Boolean, nullable=False)
-    bio = Column(String(2048), nullable=False)
-    neutered = Column(Boolean, nullable=False)
-    lives_with_children = Column(Boolean, nullable=False)
-    image = Column(String(255))
-    isActive = Column(Boolean, nullable=False, default=True)
-    shelter_id = Column(Integer(), ForeignKey('shelters.id'))
-
-#############################################################
-
-class User(Base):
-    __tablename__ = 'users'
-
-    id = Column(Integer(), primary_key=True)
-
-    email = Column(String(255), nullable=False)
-    password = Column(String(60), nullable=False)
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
-    shelter_id = Column(Integer(), ForeignKey('shelters.id'))
-
-#############################################################
-
-class Shelter(Base):
-    __tablename__ = 'shelters'
-
-    id = Column(Integer(), primary_key=True)
-
-    name = Column(String(255), nullable=False)
-    location = Column(String(255), nullable=False)
-    email = Column(String(255), nullable=False)
-    phone_number = Column(String(20))
-
-    animals = relationship('Animal', backref='shelter')
-    users = relationship('User', backref='shelter')
-
-#############################################################
 
 Base.metadata.create_all(engine)
 
