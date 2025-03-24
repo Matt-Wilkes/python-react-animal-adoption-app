@@ -17,7 +17,7 @@ class Animal(Base):
     bio: Mapped[str] = mapped_column(String(2048), nullable=False)
     neutered: Mapped[bool] = mapped_column(Boolean, nullable=False)
     lives_with_children: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    image: Mapped[str] = mapped_column(String(255))
+    image: Mapped[str] = mapped_column(String(255), nullable=True)
     isActive: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     shelter_id: Mapped[int] = mapped_column(ForeignKey("shelters.id"))
     
