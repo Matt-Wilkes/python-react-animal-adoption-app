@@ -1,44 +1,5 @@
-# Guidance from here - https://coderpad.io/blog/development/sqlalchemy-with-postgresql/
-
-from sqlalchemy import create_engine
-from sqlalchemy import URL
-
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm import sessionmaker
-
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Boolean, MetaData
 from lib.models import Base, Animal, User, Shelter
 
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-print("RESEEDING DB - ", "DB Name => ", os.getenv('DATABASE_NAME'), "DB Host => ", os.getenv('DATABASE_HOST'))
-
-url = URL.create(
-    drivername="postgresql",
-    host = os.getenv("DATABASE_HOST"),
-    database= os.getenv("DATABASE_NAME")
-)
-
-engine = create_engine(url)
-connection = engine.connect()
-
-meta = MetaData()
-meta.reflect(bind=engine)
-
-
-# Drop all tables and clear the database.
-meta.drop_all(bind=engine, tables=None, checkfirst=True)
-
-Base.metadata.create_all(engine)
-
-# Check which tables are being reflected
-print("Tables created => ", Base.metadata.tables.keys())  # If using MetaData
-
-Session = sessionmaker(bind=engine)
-session = Session()
 
 # Populate the SHELTER table
 ###############################
@@ -49,7 +10,7 @@ shelter1 = Shelter(
     email = "info@batterseadogshome.org",
     phone_number = "07931996801"
 )
-session.add(shelter1)
+
 
 shelter2 = Shelter(
     name = "Cardiff Dogs Home",
@@ -57,7 +18,7 @@ shelter2 = Shelter(
     email = "info@cardiffdogshome.org",
     phone_number = "07931996802"
 )
-session.add(shelter2)
+
 
 shelter3 = Shelter(
     name = "Mayhew Animal Home",
@@ -65,7 +26,6 @@ shelter3 = Shelter(
     email = "info@themayhew.org",
     phone_number = "07931996802"
 )
-session.add(shelter3)
 
 # Populate the ANIMALS table
 ###############################
@@ -85,7 +45,6 @@ animal1 = Animal(
     shelter = shelter1
 )
 
-session.add(animal1)
 
 #################### 
 
@@ -101,10 +60,9 @@ animal2 = Animal(
     lives_with_children = False,
     image = "seed_cinnamon.png",
     isActive = True,
-    shelter = shelter2
+    shelter = shelter3
 )
 
-session.add(animal2)
 
 #################### 
 
@@ -123,7 +81,6 @@ animal3 = Animal(
     shelter = shelter2
 )
 
-session.add(animal3)
 
 #################### 
 
@@ -142,7 +99,6 @@ animal4 = Animal(
     shelter = shelter3
 )
 
-session.add(animal4)
 
 #################### 
 
@@ -161,7 +117,6 @@ animal5 = Animal(
     shelter = shelter3
 )
 
-session.add(animal5)
 
 #################### 
 
@@ -180,7 +135,6 @@ animal6 = Animal(
     shelter = shelter2
 )
 
-session.add(animal6)
 
 #################### 
 
@@ -199,7 +153,6 @@ animal7 = Animal(
     shelter = shelter2
 )
 
-session.add(animal7)
 
 #################### 
 
@@ -218,7 +171,6 @@ animal8 = Animal(
     shelter = shelter1
 )
 
-session.add(animal8)
 
 #################### 
 
@@ -238,9 +190,8 @@ animal9 = Animal(
     shelter = shelter2
 )
 
-session.add(animal9)
-
 #################### 
+
 
 # Populate the USERS table
 ###############################
@@ -252,7 +203,6 @@ user1 = User(
     last_name = "jugon",
     shelter = shelter1
 )
-session.add(user1)
 
 user2 = User(
     email = "marya@shariq.com",
@@ -261,7 +211,6 @@ user2 = User(
     last_name = "Shariq",
     shelter = shelter2
 )
-session.add(user2)
 
 
 user3 = User(
@@ -271,9 +220,149 @@ user3 = User(
     last_name = "Wilkes",
     shelter = shelter2
 )
-session.add(user3)
 
+shelters = [shelter1, shelter2, shelter3]
+animals = [animal1, animal2, animal3, animal4, animal5, animal6, animal7, animal8, animal9]
+users = [user1, user2, user3]
 
+# Test data
+test_shelter = Shelter(
+    name = "Example Shelter",
+    location = "South London",
+    email = "info@example.com",
+    phone_number = "07123123123"
+)
+
+test_user = User(
+    email = "rtest@example.com",
+    password = "Chicken123!",
+    first_name = "test",
+    last_name = "user",
+    shelter = test_shelter
+)
+
+test_animal_1 = Animal(
+    name = "Test One",
+    species = "cat",
+    age = 1,
+    breed = "Maine Coon",
+    location = "London",
+    male = True,
+    bio = "This is a ltest cat.",
+    neutered = False,
+    lives_with_children = False,
+    image = "seed_cinnamon.png",
+    isActive = True,
+    shelter = test_shelter
+)
+test_animal_2 = Animal(
+    name = "Test Two",
+    species = "dog",
+    age = 2,
+    breed = "test breed",
+    location = "London",
+    male = True,
+    bio = "This is aa test dog.",
+    neutered = False,
+    lives_with_children = False,
+    image = "seed_cinnamon.png",
+    isActive = True,
+    shelter = test_shelter
+)
+test_animal_3 = Animal(
+    name = "Test Three",
+    species = "wolf",
+    age = 3,
+    breed = "werewolf",
+    location = "London",
+    male = True,
+    bio = "This is a test werewolf.",
+    neutered = False,
+    lives_with_children = False,
+    image = "seed_cinnamon.png",
+    isActive = False,
+    shelter = test_shelter
+)
+
+test_animals = [test_animal_1, test_animal_2, test_animal_3]
 #############################################################
 
-session.commit()
+# class Animal(db.Model):
+#     __tablename__ = 'animals'
+
+#     # TODO - Refactor the code so that this class is not duplicated in the backend code.
+#     id = db.Column(db.Integer(), primary_key=True)
+#     name = db.Column(db.String(255))
+#     species = db.Column(db.String(50))
+#     age = db.Column(db.Integer)
+#     breed = db.Column(db.String(50), nullable=False)
+#     location = db.Column(db.String(50), nullable=False)
+#     male = db.Column(db.Boolean, nullable=False)
+#     bio = db.Column(db.String(500), nullable=False)
+#     neutered = db.Column(db.Boolean, nullable=False)
+#     lives_with_children = db.Column(db.Boolean, nullable=False)
+#     image = db.Column(db.String(255))
+#     isActive = db.Column(db.Boolean, nullable=False, default=True)
+#     shelter_id = db.Column(db.Integer(), db.ForeignKey('shelters.id'))
+
+# ------------------------------------
+
+    # def as_dict(self):
+    #     animal_dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    #     shelter_info = db.session.get(Shelter, self.shelter_id)
+        # LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. 
+        # The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+        # shelter_info = Shelter.query.get(self.shelter_id)
+
+        # animal_dict['shelter'] = {
+        #     'name': shelter_info.name,
+        #     'location': shelter_info.location,
+        #     'email': shelter_info.email,
+        #     'phone_number': shelter_info.phone_number
+        # }
+        # return animal_dict
+
+# ------------------------------------
+
+# class User(db.Model):
+#     __tablename__ = 'users'
+
+#     id = db.Column(db.Integer(), primary_key=True)
+
+#     email = db.Column(db.String(255), nullable=False)
+#     password = db.Column(db.String(255), nullable=False)
+#     first_name = db.Column(db.String(255), nullable=False)
+#     last_name = db.Column(db.String(255), nullable=False)
+#     shelter_id = db.Column(db.Integer, db.ForeignKey('shelters.id'), nullable=False)
+
+#     def as_dict(self):
+#         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+# ------------------------------------
+
+# class Shelter(db.Model):
+#     __tablename__ = 'shelters'
+
+#     id = db.Column(db.Integer(), primary_key=True)
+
+#     name = db.Column(db.String(255), nullable=False)
+#     location = db.Column(db.String(255), nullable=False)
+#     email = db.Column(db.String(255), nullable=False)
+#     phone_number = db.Column(db.String(20), nullable=False)
+
+#     animals = db.relationship('Animal', backref='shelter', lazy=True)
+#     users = db.relationship('User', backref='shelter', lazy=True)
+
+#     def as_dict(self):
+#         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+# ------------------------------------
+# Email domain name to shelter_id mapping dictionary is here
+
+# email_to_shelter_mapping = {
+#     '@batterseadogshome.org': 1,
+#     '@cardiffdogshome.org': 2,
+#     '@themayhew.org': 3,
+#     '@rspca.org.uk': 4
+# }
