@@ -97,26 +97,30 @@ def display_one_animal(id):
 @app.route('/listings', methods=['POST'])
 @token_checker # Added this decorator to check for token. 
 def create_new_animal():
+    data = request.get_json()
     with app.app_context():
-        with db.session.begin():
-            data = request.get_json()
-            print('Received the data:', data)
+        animal = AnimalRepository(db).create_new_animal(data)
+        return jsonify(animal.to_dict()), 201
+    # with app.app_context():
+        # with db.session.begin():
+            
+        #     print('Received the data:', data)
 
-            animal = Animal(
-                name=data['name'],
-                species=data['species'],
-                age=data['age'],
-                breed=data['breed'],
-                location=data['location'],
-                male=data['male'],
-                bio=data['bio'],
-                neutered=data['neutered'],
-                lives_with_children=data['lives_with_children'],
-                image = ['image'],
-                shelter_id=data['shelter_id'],
-            )
+        #     animal = Animal(
+        #         name=data['name'],
+        #         species=data['species'],
+        #         age=data['age'],
+        #         breed=data['breed'],
+        #         location=data['location'],
+        #         male=data['male'],
+        #         bio=data['bio'],
+        #         neutered=data['neutered'],
+        #         lives_with_children=data['lives_with_children'],
+        #         image = ['image'],
+        #         shelter_id=data['shelter_id'],
+        #     )
 
-            db.session.add(animal)
+        #     db.session.add(animal)
         # below lines aren't needed until upload is implemented
         # retrieved_animal = db.session.get(Animal, animal.id)
         # retrieved_animal.image = f"unique_id_{retrieved_animal.id}"
@@ -136,7 +140,7 @@ def create_new_animal():
         #     return message, 400
         # return jsonify(animal.as_dict()), 201
 
-        return jsonify(animal.to_dict()), 201
+        
 
 # This function allows a logged in user to edit information about a specific animal
 @app.route('/listings/<int:id>', methods=['PUT'])
