@@ -168,9 +168,9 @@ if (!animalData) {
                 primary="Email" 
                 secondary={
                   <a 
-                    href={`mailto:${animalData.shelter.email}?subject=Inquiry%20about%20adopting%20${encodeURIComponent(animalData.name)}&body=Hi,%20I'm%20interested%20in%20adopting%20${encodeURIComponent(animalData.name)}.%20Could%20I%20get%20some%20more%20info?`}
+                    href={`mailto:${animalData.shelter_id.email}?subject=Inquiry%20about%20adopting%20${encodeURIComponent(animalData.name)}&body=Hi,%20I'm%20interested%20in%20adopting%20${encodeURIComponent(animalData.name)}.%20Could%20I%20get%20some%20more%20info?`}
                   >
-                    {animalData.shelter.email}
+                    {animalData.shelter_id.email}
                   </a>
                 } 
               />
