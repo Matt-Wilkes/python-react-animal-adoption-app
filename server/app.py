@@ -1,18 +1,24 @@
-from flask import Flask, request, render_template, redirect, jsonify
+import click
+from flask import Flask, request, render_template, redirect, jsonify, send_from_directory
+from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from lib.database_connection import db_session
-from db.seed import Animal, Shelter, User
+from sqlalchemy import select
+# from lib.database_connection import db_session
+from db.seed import Animal, Shelter, User, users, animals, shelters
 from functools import wraps
 from controllers.auth import generate_token, decode_token
 from flask_bcrypt import Bcrypt 
+from lib.database_connection import DatabaseConnection, db
+from lib.models.animal_repository import AnimalRepository
+
 
 # Photo upload
-from werkzeug.utils import secure_filename
-from flask import url_for
-from flask import send_from_directory
-from flask import abort
-import FileUploader
+# from werkzeug.utils import secure_filename
+# from flask import url_for
+# from flask import send_from_directory
+# from flask import abort
+# import FileUploader
 # End photo upload.
 
 from dotenv import load_dotenv
@@ -20,98 +26,35 @@ import os
 
 # Create a new Flask app
 app = Flask(__name__)
+conn = DatabaseConnection()
+conn.configure_app(app)
 # Encryption with Bcrypt
 bcrypt = Bcrypt(app) 
 
 CORS(app) 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_CONNECT")
-db = SQLAlchemy(app)
+@click.command('init-db')
+@with_appcontext
+def init_db_command():
+    """Drop db tables and recreate"""
+    with db.session.begin():
+        db.drop_all()
+        db.create_all()
+        click.echo("Database has been created")
+        
+@click.command('seed-db')
+@with_appcontext
+def seed_db_command():
+    """Drop db tables and recreate"""
+    with db.session.begin():
+        db.session.add_all(animals)
+        db.session.add_all(users)
+        click.echo("Database has been seeded")
+
+app.cli.add_command(init_db_command)
+app.cli.add_command(seed_db_command)
 
 # ------------------------------------
-
-class Animal(db.Model):
-    __tablename__ = 'animals'
-
-    # TODO - Refactor the code so that this class is not duplicated in the backend code.
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(255))
-    species = db.Column(db.String(50))
-    age = db.Column(db.Integer)
-    breed = db.Column(db.String(50), nullable=False)
-    location = db.Column(db.String(50), nullable=False)
-    male = db.Column(db.Boolean, nullable=False)
-    bio = db.Column(db.String(500), nullable=False)
-    neutered = db.Column(db.Boolean, nullable=False)
-    lives_with_children = db.Column(db.Boolean, nullable=False)
-    image = db.Column(db.String(255))
-    isActive = db.Column(db.Boolean, nullable=False, default=True)
-    shelter_id = db.Column(db.Integer(), db.ForeignKey('shelters.id'))
-
-# ------------------------------------
-
-    def as_dict(self):
-        animal_dict = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        shelter_info = db.session.get(Shelter, self.shelter_id)
-        # LegacyAPIWarning: The Query.get() method is considered legacy as of the 1.x series of SQLAlchemy and becomes a legacy construct in 2.0. 
-        # The method is now available as Session.get() (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
-        # shelter_info = Shelter.query.get(self.shelter_id)
-
-        animal_dict['shelter'] = {
-            'name': shelter_info.name,
-            'location': shelter_info.location,
-            'email': shelter_info.email,
-            'phone_number': shelter_info.phone_number
-        }
-        return animal_dict
-
-# ------------------------------------
-
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer(), primary_key=True)
-
-    email = db.Column(db.String(255), nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    first_name = db.Column(db.String(255), nullable=False)
-    last_name = db.Column(db.String(255), nullable=False)
-    shelter_id = db.Column(db.Integer, db.ForeignKey('shelters.id'), nullable=False)
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-# ------------------------------------
-
-class Shelter(db.Model):
-    __tablename__ = 'shelters'
-
-    id = db.Column(db.Integer(), primary_key=True)
-
-    name = db.Column(db.String(255), nullable=False)
-    location = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
-    phone_number = db.Column(db.String(20), nullable=False)
-
-    animals = db.relationship('Animal', backref='shelter', lazy=True)
-    users = db.relationship('User', backref='shelter', lazy=True)
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-
-# ------------------------------------
-# Email domain name to shelter_id mapping dictionary is here
-
-# email_to_shelter_mapping = {
-#     '@batterseadogshome.org': 1,
-#     '@cardiffdogshome.org': 2,
-#     '@themayhew.org': 3,
-#     '@rspca.org.uk': 4
-# }
-
-
-
 # decorator function used for sake of DRY
 def token_checker(f):
     @wraps(f)
@@ -134,21 +77,19 @@ def token_checker(f):
     return decorated_function
 # == Routes Here ==
 
+
 # Listings route - return a list of all animals.
 @app.route('/listings', methods=['GET'])
 def display_animals():
+    animals = AnimalRepository(db).get_all_active()
+    return jsonify([animal.to_dict() for animal in animals]), 200
 
-    with app.app_context():
-        animals = Animal.query.filter(Animal.isActive == True)
-        animals_to_json = [animal.as_dict() for animal in animals]
-        return jsonify(animals_to_json)
 
 
 @app.route('/listings/<int:id>', methods= ['GET'])
 def display_one_animal(id):
-    with app.app_context():
-        animal = Animal.query.get(id)
-        return jsonify(animal.as_dict()), 200
+        animal = AnimalRepository(db).get_by_id(id)
+        return jsonify(animal.to_dict()), 200
 
 
 # THIS FUNCTION WILL POST A NEW ANIMAL TO THE DATABASE
@@ -157,38 +98,36 @@ def display_one_animal(id):
 @token_checker # Added this decorator to check for token. 
 def create_new_animal():
     with app.app_context():
+        with db.session.begin():
+            data = request.get_json()
+            print('Received the data:', data)
 
-        data = request.get_json()
-        print('Received the data:', data)
+            animal = Animal(
+                name=data['name'],
+                species=data['species'],
+                age=data['age'],
+                breed=data['breed'],
+                location=data['location'],
+                male=data['male'],
+                bio=data['bio'],
+                neutered=data['neutered'],
+                lives_with_children=data['lives_with_children'],
+                image = "unique_id_tbd",
+                shelter_id=data['shelter_id'],
+            )
 
-        animal = Animal(
-            name=data['name'],
-            species=data['species'],
-            age=data['age'],
-            breed=data['breed'],
-            location=data['location'],
-            male=data['male'],
-            bio=data['bio'],
-            neutered=data['neutered'],
-            lives_with_children=data['lives_with_children'],
-            image = "unique_id_tbd",
-            shelter_id=data['shelter_id'],
-        )
+            db.session.add(animal)
 
-        db.session.add(animal)
-        db.session.commit()
+            # Give the filename a unique ID e.g animal ID which doesn’t yet exist
+            # The primary key is instantly available once the record has been commited.        
+            # Retrieve the auto-incremented ID
+            new_animal_id = animal.id
+            # Query the database for the newly created object using the ID
+            retrieved_animal = db.session.get(Animal, new_animal_id)
 
-        # Give the filename a unique ID e.g animal ID which doesn’t yet exist
-        # The primary key is instantly available once the record has been commited.        
-        # Retrieve the auto-incremented ID
-        new_animal_id = animal.id
-        # Query the database for the newly created object using the ID
-        retrieved_animal = db.session.query(Animal).get(new_animal_id)
-
-        # Update the image field of the retrieved object
-        retrieved_animal.image = f"unique_id_{new_animal_id}"
-        # Commit the changes to the database
-        db.session.commit()
+            # Update the image field of the retrieved object
+            retrieved_animal.image = f"unique_id_{new_animal_id}"
+            # Commit the changes to the database
 
         # Step b - Save the image into the static folder
 
@@ -204,35 +143,34 @@ def create_new_animal():
         #     return message, 400
         # return jsonify(animal.as_dict()), 201
 
-        return jsonify(animal.as_dict()), 201
+        return jsonify(animal.to_dict()), 201
 
 # This function allows a logged in user to edit information about a specific animal
 @app.route('/listings/<int:id>', methods=['PUT'])
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     with app.app_context():
+        with db.session.begin():
+            data = request.get_json()
+            print('Received the data:', data)
+            # animal = Animal.query.get(id)
+            animal = db.session.get(Animal, id)
+            if not animal:
+                return jsonify({"message": "Animal not found"}), 404
 
-        data = request.get_json()
-        print('Received the data:', data)
-        animal = Animal.query.get(id)
-        if not animal:
-            return jsonify({"message": "Animal not found"}), 404
+            # Update the animal's attributes with the new data
+            animal.name = data.get('name', animal.name)
+            animal.species = data.get('species', animal.species)
+            animal.age = data.get('age', animal.age)
+            animal.breed = data.get('breed', animal.breed)
+            animal.location = data.get('location', animal.location)
+            animal.male = data.get('male', animal.male)
+            animal.bio = data.get('bio', animal.bio)
+            animal.neutered = data.get('neutered', animal.neutered)
+            animal.lives_with_children = data.get('lives_with_children', animal.lives_with_children)
+            animal.shelter_id = data.get('shelter_id', animal.shelter_id)
 
-        # Update the animal's attributes with the new data
-        animal.name = data.get('name', animal.name)
-        animal.species = data.get('species', animal.species)
-        animal.age = data.get('age', animal.age)
-        animal.breed = data.get('breed', animal.breed)
-        animal.location = data.get('location', animal.location)
-        animal.male = data.get('male', animal.male)
-        animal.bio = data.get('bio', animal.bio)
-        animal.neutered = data.get('neutered', animal.neutered)
-        animal.lives_with_children = data.get('lives_with_children', animal.lives_with_children)
-        animal.shelter_id = data.get('shelter_id', animal.shelter_id)
-
-        db.session.commit()
-
-        return jsonify(animal.as_dict()), 200
+            return jsonify(animal.to_dict()), 200
 
 # This backend function allows a user to update the isActive field in the database 
 # This is mainly used when the user wants to 'hide' an animal profile by setting isActive to false
@@ -311,45 +249,6 @@ def signup():
         return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 201
         # return jsonify(user.as_dict()), 201
 
-        
-
-############ Photo Upload.
-
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
-app.config['UPLOAD_PATH'] = 'uploads'
-
-# Test to allow system admin to view files.
-@app.route('/upload', methods=['GET'])
-def upload_form():
-    file_listing = os.listdir(os.getenv("PHOTO_UPLOAD_LOCATION"))
-    return render_template('upload.html', file_listing = file_listing)
-
-@app.route('/upload', methods=['POST'])
-def upload_files():
-    uploader = FileUploader.FileUploader(
-        upload_location=os.getenv("PHOTO_UPLOAD_LOCATION"),
-        allowed_extensions=app.config['UPLOAD_EXTENSIONS']
-    )
-
-    uploaded_file = request.files['file']
-    success, message = uploader.validate_and_save(uploaded_file)
-
-    if not success:
-        return message, 400
-    return '', 204
-
-@app.route('/upload/<filename>')
-def upload(filename):
-    return send_from_directory(os.getenv("PHOTO_UPLOAD_LOCATION"), filename)
-
-# Validator for Dropzone js component.
-@app.errorhandler(413)
-def too_large(e):
-    return "File is too large", 413
-
-############ End Photo Upload
-
 # test protected route
 @app.route('/protected', methods=['GET'])
 @token_checker
@@ -361,3 +260,44 @@ def protected_route():
 # if started in test mode.
 if __name__ == '__main__':
     app.run(debug=True)
+    
+
+        
+
+############ Photo Upload.
+
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+app.config['UPLOAD_PATH'] = 'uploads'
+
+# # Test to allow system admin to view files.
+# @app.route('/upload', methods=['GET'])
+# def upload_form():
+#     file_listing = os.listdir(os.getenv("PHOTO_UPLOAD_LOCATION"))
+#     return render_template('upload.html', file_listing = file_listing)
+
+# @app.route('/upload', methods=['POST'])
+# def upload_files():
+#     uploader = FileUploader.FileUploader(
+#         upload_location=os.getenv("PHOTO_UPLOAD_LOCATION"),
+#         allowed_extensions=app.config['UPLOAD_EXTENSIONS']
+#     )
+
+#     uploaded_file = request.files['file']
+#     success, message = uploader.validate_and_save(uploaded_file)
+
+#     if not success:
+#         return message, 400
+#     return '', 204
+
+# 
+@app.route('/upload/<filename>')
+def upload(filename):
+    return send_from_directory(os.getenv("PHOTO_UPLOAD_LOCATION"), filename)
+
+# # Validator for Dropzone js component.
+# @app.errorhandler(413)
+# def too_large(e):
+#     return "File is too large", 413
+
+############ End Photo Upload

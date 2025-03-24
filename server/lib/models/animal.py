@@ -21,8 +21,25 @@ class Animal(Base):
     isActive: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     shelter_id: Mapped[int] = mapped_column(ForeignKey("shelters.id"))
     
-    def __repr__(self) -> str:
-        return f"Animal(id={self.id!r}, name={self.name!r}, species={self.species!r}, age={self.age!r}, breed={self.breed!r},location={self.location!r},male={self.male!r}, bio={self.bio!r}, neutered={self.neutered!r}, lives_with_children={self.lives_with_children!r} image={self.image!r}, isActive={self.isActive!r}, shelter_id={self.shelter_id!r})"
+    def __repr__(self):
+        try:
+            return f"Animal(id={self.id!r}, name={self.name!r}, species={self.species!r}, age={self.age!r}, breed={self.breed!r},location={self.location!r},male={self.male!r}, bio={self.bio!r}, neutered={self.neutered!r}, lives_with_children={self.lives_with_children!r} image={self.image!r}, isActive={self.isActive!r}, shelter_id={self.shelter_id!r})"
+        except Exception:
+            return f"Animal(detached)"
     
-
-    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "species": self.species,
+            "age": self.age,
+            "breed": self.breed,
+            "location": self.location,
+            "male": self.male,
+            "bio": self.bio,
+            "neutered": self.neutered,
+            "lives_with_children": self.lives_with_children,
+            "image": self.image,
+            "isActive": self.isActive,
+            "shelter_id": self.shelter_id
+        }

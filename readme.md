@@ -73,10 +73,12 @@ echo VITE_BACKEND_URL="http://127.0.0.1:5000" >> .env
 open .env
 ```
 
-# Seeding - How to seed as a one-off task
-
-- run this file : 
-python seed.py
+# Initialising the database
+in the server/ directory run the below commands
+```zsh
+flask init-db
+flask seed-db
+```
 
 - run this file : 
 python print_seed.py
