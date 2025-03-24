@@ -112,22 +112,15 @@ def create_new_animal():
                 bio=data['bio'],
                 neutered=data['neutered'],
                 lives_with_children=data['lives_with_children'],
-                image = "unique_id_tbd",
+                image = ['image'],
                 shelter_id=data['shelter_id'],
             )
 
             db.session.add(animal)
-
-            # Give the filename a unique ID e.g animal ID which doesn’t yet exist
-            # The primary key is instantly available once the record has been commited.        
-            # Retrieve the auto-incremented ID
-            new_animal_id = animal.id
-            # Query the database for the newly created object using the ID
-            retrieved_animal = db.session.get(Animal, new_animal_id)
-
-            # Update the image field of the retrieved object
-            retrieved_animal.image = f"unique_id_{new_animal_id}"
-            # Commit the changes to the database
+        # below lines aren't needed until upload is implemented
+        # retrieved_animal = db.session.get(Animal, animal.id)
+        # retrieved_animal.image = f"unique_id_{retrieved_animal.id}"
+        
 
         # Step b - Save the image into the static folder
 
