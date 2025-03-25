@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from lib.models.animal import Animal
 from flask_sqlalchemy import SQLAlchemy
 
@@ -32,9 +32,18 @@ class AnimalRepository:
                 bio=data['bio'],
                 neutered=data['neutered'],
                 lives_with_children=data['lives_with_children'],
-                image = ['image'],
+                image = data['image'],
                 shelter_id=data['shelter_id'],
             )
 
             self.db.session.add(animal)
             return animal
+        
+    def update_animal(self, data):
+        with self.db.session.begin():
+            # values = str(data)
+            stmt = (update(Animal).where(Animal.id == data["id"]).values(data).returning(Animal))
+            updated_animal = self.db.session.scalar(stmt)
+            print(updated_animal)
+            return updated_animal
+            

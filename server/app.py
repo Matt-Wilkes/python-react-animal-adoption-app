@@ -101,26 +101,7 @@ def create_new_animal():
     with app.app_context():
         animal = AnimalRepository(db).create_new_animal(data)
         return jsonify(animal.to_dict()), 201
-    # with app.app_context():
-        # with db.session.begin():
-            
-        #     print('Received the data:', data)
-
-        #     animal = Animal(
-        #         name=data['name'],
-        #         species=data['species'],
-        #         age=data['age'],
-        #         breed=data['breed'],
-        #         location=data['location'],
-        #         male=data['male'],
-        #         bio=data['bio'],
-        #         neutered=data['neutered'],
-        #         lives_with_children=data['lives_with_children'],
-        #         image = ['image'],
-        #         shelter_id=data['shelter_id'],
-        #     )
-
-        #     db.session.add(animal)
+   
         # below lines aren't needed until upload is implemented
         # retrieved_animal = db.session.get(Animal, animal.id)
         # retrieved_animal.image = f"unique_id_{retrieved_animal.id}"
@@ -146,28 +127,15 @@ def create_new_animal():
 @app.route('/listings/<int:id>', methods=['PUT'])
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
-    with app.app_context():
-        with db.session.begin():
-            data = request.get_json()
-            print('Received the data:', data)
-            # animal = Animal.query.get(id)
-            animal = db.session.get(Animal, id)
-            if not animal:
-                return jsonify({"message": "Animal not found"}), 404
+    data = request.get_json()
+    print('Received the data:', data)
+    animal = AnimalRepository(db).update_animal(data)
+    if not animal:
+        return jsonify({"message": "Animal not found"}), 404
+    else:
+        return jsonify(animal.to_dict()), 200
 
-            # Update the animal's attributes with the new data
-            animal.name = data.get('name', animal.name)
-            animal.species = data.get('species', animal.species)
-            animal.age = data.get('age', animal.age)
-            animal.breed = data.get('breed', animal.breed)
-            animal.location = data.get('location', animal.location)
-            animal.male = data.get('male', animal.male)
-            animal.bio = data.get('bio', animal.bio)
-            animal.neutered = data.get('neutered', animal.neutered)
-            animal.lives_with_children = data.get('lives_with_children', animal.lives_with_children)
-            animal.shelter_id = data.get('shelter_id', animal.shelter_id)
 
-            return jsonify(animal.to_dict()), 200
 
 # This backend function allows a user to update the isActive field in the database 
 # This is mainly used when the user wants to 'hide' an animal profile by setting isActive to false
