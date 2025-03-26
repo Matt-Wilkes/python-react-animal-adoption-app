@@ -26,7 +26,7 @@ export const createAnimal = async (token, animal) => {
     headers: {
       "Content-Type": "application/json",
       // 'content-type': 'multipart/form-data',
-      Authorization: `Bearer ${token}`, // I've uncommented this to pass the token in the header.
+      Authorization: `Bearer ${token}`,
     },
     // body: formData,
     body: JSON.stringify(animal),

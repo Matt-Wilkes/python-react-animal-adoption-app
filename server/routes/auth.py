@@ -2,6 +2,9 @@ from authlib.jose import jwt, JoseError
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta, timezone
+from functools import wraps
+
+from flask import jsonify, request
 
 load_dotenv()
 
@@ -34,3 +37,23 @@ def decode_token(token):
         print(f"Token decoding failed: {e}")
         return None
 
+def token_checker(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = None
+        auth_header = request.headers.get('Authorization')
+
+        if auth_header:
+            token = auth_header.split(" ")[1]
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 401
+        try:
+            payload = decode_token(token)
+            print(payload)
+            request.user_id = payload.get("user_id")
+        except Exception as e:
+            return jsonify({"message": "Invalid or expired token!"}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated_function
