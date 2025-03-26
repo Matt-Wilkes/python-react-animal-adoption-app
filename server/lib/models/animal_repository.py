@@ -32,7 +32,7 @@ class AnimalRepository:
                 bio=data['bio'],
                 neutered=data['neutered'],
                 lives_with_children=data['lives_with_children'],
-                image = data['image'],
+                image="",
                 shelter_id=data['shelter_id'],
             )
 

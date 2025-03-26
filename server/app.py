@@ -1,23 +1,18 @@
 import click
-from flask import Flask, request, render_template, redirect, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from sqlalchemy import select
-# from lib.database_connection import db_session
-from db.seed import Animal, Shelter, User, users, animals, shelters
-from functools import wraps
-from controllers.auth import generate_token, decode_token
+from db.seed import Animal, User, users, animals, shelters
+from routes.auth import generate_token, decode_token, token_checker
 from flask_bcrypt import Bcrypt 
 from lib.database_connection import DatabaseConnection, db
-from lib.models.animal_repository import AnimalRepository
+from routes.animal_routes import animal_bp
 
 
 # Photo upload
 # from werkzeug.utils import secure_filename
-# from flask import url_for
-# from flask import send_from_directory
-# from flask import abort
 # import FileUploader
 # End photo upload.
 
@@ -28,10 +23,15 @@ import os
 app = Flask(__name__)
 conn = DatabaseConnection()
 conn.configure_app(app)
+
+
+CORS(app)
+
+app.register_blueprint(animal_bp, url_prefix='/listings')
+
+
 # Encryption with Bcrypt
 bcrypt = Bcrypt(app) 
-
-CORS(app) 
 
 @click.command('init-db')
 @with_appcontext
@@ -55,88 +55,8 @@ app.cli.add_command(init_db_command)
 app.cli.add_command(seed_db_command)
 
 # ------------------------------------
-# decorator function used for sake of DRY
-def token_checker(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        token = None
-        auth_header = request.headers.get('Authorization')
 
-        if auth_header:
-            token = auth_header.split(" ")[1]
-        if not token:
-            return jsonify({"message": "Token is missing!"}), 401
-        try:
-            payload = decode_token(token)
-            request.user_id = payload.get('user_id')
-        except Exception as e:
-            return jsonify({"message": "Invalid or expired token!"}), 401
-
-        return f(*args, **kwargs)
-
-    return decorated_function
 # == Routes Here ==
-
-
-# Listings route - return a list of all animals.
-@app.route('/listings', methods=['GET'])
-def display_animals():
-    animals = AnimalRepository(db).get_all_active()
-    return jsonify([animal.to_dict() for animal in animals]), 200
-
-
-
-@app.route('/listings/<int:id>', methods= ['GET'])
-def display_one_animal(id):
-        animal = AnimalRepository(db).get_by_id(id)
-        return jsonify(animal.to_dict()), 200
-
-
-# THIS FUNCTION WILL POST A NEW ANIMAL TO THE DATABASE
-# TODO : Will I need to change '/listings' to something else? 
-@app.route('/listings', methods=['POST'])
-@token_checker # Added this decorator to check for token. 
-def create_new_animal():
-    data = request.get_json()
-    with app.app_context():
-        animal = AnimalRepository(db).create_new_animal(data)
-        return jsonify(animal.to_dict()), 201
-   
-        # below lines aren't needed until upload is implemented
-        # retrieved_animal = db.session.get(Animal, animal.id)
-        # retrieved_animal.image = f"unique_id_{retrieved_animal.id}"
-        
-
-        # Step b - Save the image into the static folder
-
-        # uploader = FileUploader.FileUploader(
-        #     upload_location=os.getenv("PHOTO_UPLOAD_LOCATION"),
-        #     allowed_extensions=app.config['UPLOAD_EXTENSIONS']
-        # )
-
-        # uploaded_file = request.files['file']
-        # success, message = uploader.validate_and_save(uploaded_file)
-
-        # if not success:
-        #     return message, 400
-        # return jsonify(animal.as_dict()), 201
-
-        
-
-# This function allows a logged in user to edit information about a specific animal
-@app.route('/listings/<int:id>', methods=['PUT'])
-@token_checker  # Ensures that the user is authenticated
-def update_animal(id):
-    data = request.get_json()
-    print('Received the data:', data)
-    animal = AnimalRepository(db).update_animal(data)
-    if not animal:
-        return jsonify({"message": "Animal not found"}), 404
-    else:
-        return jsonify(animal.to_dict()), 200
-
-
-
 # This backend function allows a user to update the isActive field in the database 
 # This is mainly used when the user wants to 'hide' an animal profile by setting isActive to false
 
@@ -156,23 +76,22 @@ def update_is_active(id):
     
 @app.route('/token', methods=['POST'])
 def login():
-    with app.app_context():
-        data = request.get_json()
-        req_email = data.get('email')
-        req_password = data.get('password')
-        user = User.query.filter_by(email=req_email).first()
-        if not user:
-            return jsonify({"error": "User not found"}), 401
-        elif bcrypt.check_password_hash(user.password, req_password):
-            token_data = {
-            "id": user.id,
-            "shelter_id": user.shelter_id
-            }
-            token = generate_token(req_email, token_data) #generate token here 
-            data = decode_token(token) # decode token 
-            return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 200
-        else:
-            return jsonify({"error": "Password is incorrect"}), 401
+    data = request.get_json()
+    req_email = data.get('email')
+    req_password = data.get('password')
+    user = db.session.scalar(select(User).filter_by(email=req_email))
+    if not user:
+        return jsonify({"error": "User not found"}), 401
+    elif bcrypt.check_password_hash(user.password, req_password):
+        token_data = {
+        "id": user.id,
+        "shelter_id": user.shelter_id
+        }
+        token = generate_token(req_email, token_data) #generate token here 
+        data = decode_token(token) # decode token 
+        return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 200
+    else:
+        return jsonify({"error": "Password is incorrect"}), 401
 
 # This function adds a new user to the database
 @app.route('/sign-up', methods=['POST'])
