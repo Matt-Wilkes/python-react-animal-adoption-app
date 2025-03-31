@@ -1,5 +1,5 @@
 import click
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Blueprint, Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -9,6 +9,7 @@ from routes.auth import generate_token, decode_token, token_checker
 from flask_bcrypt import Bcrypt 
 from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
+from routes.auth_routes import auth_bp
 
 
 # Photo upload
@@ -19,16 +20,48 @@ from routes.animal_routes import animal_bp
 from dotenv import load_dotenv
 import os
 
-# Create a new Flask app
-app = Flask(__name__)
-conn = DatabaseConnection()
-conn.configure_app(app)
+# # Create a new Flask app
+# app = Flask(__name__)
+# conn = DatabaseConnection()
+# conn.configure_app(app)
+# auth = Blueprint('auth', __name__)
+
+def create_app(test_config=None):
+    """Create and configure the Flask app"""
+    app = Flask(__name__)
+    
+    # Configure the app
+    if test_config is None:
+        # Load the default configuration
+        conn = DatabaseConnection()
+        conn.configure_app(app)
+    else:
+        # Load the test configuration
+        app.config.update(test_config)
+    
+    # Register blueprints
+    
+    app.register_blueprint(animal_bp, url_prefix='/listings')
+    app.register_blueprint(auth_bp)
+   
+ 
+    
+    # # Define routes
+    
+    # Other routes and configurations
+    # Below route just for the sake of a test
+#     @app.route('/protected', methods=['GET'])
+# #    @token_checker
+#     def protected_route():
+#         return jsonify({"message": f"Access granted, user_id: {request}"}), 200
+    
+    return app
+
+# Create the app for production use
+app = create_app()
 
 
 CORS(app)
-
-app.register_blueprint(animal_bp, url_prefix='/listings')
-
 
 # Encryption with Bcrypt
 bcrypt = Bcrypt(app) 
@@ -74,24 +107,7 @@ def update_is_active(id):
         db.session.commit()
         return jsonify(animal.as_dict()), 200
     
-@app.route('/token', methods=['POST'])
-def login():
-    data = request.get_json()
-    req_email = data.get('email')
-    req_password = data.get('password')
-    user = db.session.scalar(select(User).filter_by(email=req_email))
-    if not user:
-        return jsonify({"error": "User not found"}), 401
-    elif bcrypt.check_password_hash(user.password, req_password):
-        token_data = {
-        "id": user.id,
-        "shelter_id": user.shelter_id
-        }
-        token = generate_token(req_email, token_data) #generate token here 
-        data = decode_token(token) # decode token 
-        return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 200
-    else:
-        return jsonify({"error": "Password is incorrect"}), 401
+
 
 # This function adds a new user to the database
 @app.route('/sign-up', methods=['POST'])
@@ -133,21 +149,12 @@ def signup():
         return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 201
         # return jsonify(user.as_dict()), 201
 
-# test protected route
-@app.route('/protected', methods=['GET'])
-@token_checker
-def protected_route():
-    return jsonify({"message": f"Access granted, user_id: {request.user_id}"}), 200
-
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database
 # if started in test mode.
 if __name__ == '__main__':
     app.run(debug=True)
     
-
-        
-
 ############ Photo Upload.
 
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024

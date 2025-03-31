@@ -1,6 +1,5 @@
 
 from pathlib import Path
-import click
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import URL
@@ -48,7 +47,7 @@ class DatabaseConnection:
         app.config['SQLALCHEMY_DATABASE_URI'] = self._database_url()
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         # app.config['SQLALCHEMY_ECHO'] = True
-        
+        # print(app.config['SQLALCHEMY_DATABASE_URI'])
         # intialise SQLAlchemy with app
         db.init_app(app)
         
@@ -67,17 +66,17 @@ class DatabaseConnection:
     
     def reset_db(self):
         """Drop db tables and recreate"""
-        with self.app.app_context():
-            with db.session.begin():
-                db.drop_all()
-                db.create_all()
-                print("Database has been reset")
+        # with self.app.app_context():
+        with db.session.begin():
+            db.drop_all()
+            db.create_all()
+            print("Database has been reset")
     
     def seed_db(self, data):
         """Seed the database"""
-        with self.app.app_context():
-            with db.session.begin():
-                db.session.add_all(data)
-                print(f"Database has been seeded")
+        # with self.app.app_context():
+        with db.session.begin():
+            db.session.add_all(data)
+            print(f"Database has been seeded")
     
     
