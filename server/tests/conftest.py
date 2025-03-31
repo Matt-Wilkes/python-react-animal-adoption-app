@@ -1,17 +1,22 @@
-from flask import Flask
+from flask import Flask, jsonify
 import pytest
 from lib.database_connection import DatabaseConnection, db
-from db.seed import test_animals
 from lib.models import Shelter, User, Animal
 from lib.models.animal_repository import AnimalRepository
 
 
+# https://docs.pytest.org/en/stable/how-to/fixtures.html
 # This is a Pytest fixture.
 # It creates an object that we can use in our tests.
 # We will use it to create a database connection.
+
+
+from app import create_app, bcrypt
+
 @pytest.fixture
 def app():
-    app = Flask(__name__)
+    # Create a new Flask app for testing
+    app = create_app(test_config={'TESTING': True})
     return app
     
 @pytest.fixture
@@ -23,6 +28,29 @@ def db_connection(app: Flask):
     with app.app_context():
         conn.reset_db()
     return conn
+# use a pytest fixture to push a context for a specific test.
+@pytest.fixture
+def app_ctx(app):
+    with app.app_context():
+        yield
+
+@pytest.fixture
+def web_client(app):
+    # app.config['TESTING'] = True 
+    with app.test_client() as client:
+        yield client
+
+@pytest.fixture
+def test_user(app_ctx):
+    hashed_password = bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
+    test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user",shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",phone_number = "07123123123"))
+    
+    db.session.add(test_user)
+    db.session.commit()
+    
+    yield test_user
+    db.session.delete(test_user)
+    db.session.commit()
 
 @pytest.fixture
 def animal_repository(app, db_connection):
@@ -81,42 +109,3 @@ def animal_repository(app, db_connection):
     
     repo = AnimalRepository(db)
     return repo, test_animals
-
-# @pytest.fixture
-# def db_session(app: Flask, db_connection):
-#     """Provides a transaction-managed SQLAlchemy session,
-#     therefore it isn't necessary to call session.begin() within tests
-#     """
-#     with app.app_context():
-#         db.session.begin_nested()
-#         yield db.session
-        
-#         db.session.rollback()
-#         db.session.close()
-
-# @pytest.fixture # This is a factory fixture
-# def seeded_db(app: Flask, db_connection):
-#     """This is a factory fixture to reset and seed the database. A list of test data should be passed in as an argument. When called it will create and return the inner function _seed_with"""
-#     def _seed_with(test_data): # This ahs access to the app and db_connection through closure
-#         with app.app_context():
-#             db_connection.reset_db()  # Ensure clean state
-#             db_connection.seed_db(test_data)
-#         return db_connection
-    
-#     return _seed_with
-
-# fixture to use Flask app context
-# @pytest.fixture
-# def app_context(app):
-#     with app.app_context() as context:
-#         # yield passes control and context to test function
-#         # cleans up after execution
-#         yield context
-
-# @pytest.fixture
-# def created_animals_repo(app, db_connection):
-#     from lib.database_connection import db
-#     db_connection.reset_db()
-#     db_connection.seed_db(test_animals)
-#     animals_repo = AnimalRepository(db)
-#     return animals_repo, app
