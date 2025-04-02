@@ -1,11 +1,11 @@
-from flask_bcrypt import Bcrypt 
+
 from flask import Blueprint, jsonify, request
 from sqlalchemy import select
 
 from lib.database_connection import db
 from lib.models.user import User
-from routes.auth import decode_token, generate_token
-# from app import bcrypt
+from routes.auth import decode_token, generate_token, token_checker
+
 
 
 
@@ -25,8 +25,17 @@ def login():
         "id": user.id,
         "shelter_id": user.shelter_id
         }
-        token = generate_token(req_email, token_data) #generate token here 
-        data = decode_token(token) # decode token 
-        return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 200
+        token = generate_token(req_email, token_data) 
+        return jsonify({"token": token,
+                        "user": {
+                            "id": user.id,
+                            "shelter_id": user.shelter_id
+                            },
+                        }), 200
     else:
         return jsonify({"error": "Email or password is incorrect"}), 401
+    
+@auth_bp.route('/protected', methods=['GET'])
+@token_checker
+def protected_route():
+    return jsonify({"message": f"Access granted, user_id: {request}"}), 200

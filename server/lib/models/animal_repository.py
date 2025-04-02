@@ -1,3 +1,4 @@
+from flask import request
 from sqlalchemy import select, update
 from lib.models.animal import Animal
 from flask_sqlalchemy import SQLAlchemy
@@ -19,8 +20,6 @@ class AnimalRepository:
     
     def create_new_animal(self, data):
         with self.db.session.begin():
-            # data = request.get_json()
-            print('Received the data:', data)
 
             animal = Animal(
                 name=data['name'],
@@ -33,7 +32,7 @@ class AnimalRepository:
                 neutered=data['neutered'],
                 lives_with_children=data['lives_with_children'],
                 image="",
-                shelter_id=data['shelter_id'],
+                shelter_id=data['shelter_id']
             )
 
             self.db.session.add(animal)

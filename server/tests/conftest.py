@@ -35,7 +35,7 @@ def app_ctx(app):
         yield
 
 @pytest.fixture
-def web_client(app):
+def client(app):
     # app.config['TESTING'] = True 
     with app.test_client() as client:
         yield client

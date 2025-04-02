@@ -25,10 +25,8 @@ export const createAnimal = async (token, animal) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // 'content-type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
     },
-    // body: formData,
     body: JSON.stringify(animal),
   };
   console.log(requestOptions)
