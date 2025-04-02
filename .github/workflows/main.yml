@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: | # Note that there's no reference here — just commands to run
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r server/requirements.txt
 
       # Now we run our tests
       - name: Test with pytest
