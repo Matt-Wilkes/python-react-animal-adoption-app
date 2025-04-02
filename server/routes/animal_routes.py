@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 from lib.models.animal_repository import AnimalRepository
 from lib.database_connection import db
-from routes.auth import token_checker
+from routes.auth import decode_token, token_checker
 
 animal_repo = AnimalRepository(db)
 animal_bp = Blueprint('animal', __name__)
@@ -39,6 +39,7 @@ def display_one_animal(id):
 @token_checker # Added this decorator to check for token. 
 def create_new_animal():
     data = request.get_json()
+    data['shelter_id']=request.shelter_id
     animal = animal_repo.create_new_animal(data)
     return jsonify(animal.to_dict()), 201
    
@@ -75,7 +76,6 @@ def create_new_animal():
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     data = request.get_json()
-    print('Received the data:', data)
     animal = animal_repo.update_animal(data)
     if not animal:
         return jsonify({"message": "Animal not found"}), 404

@@ -20,13 +20,7 @@ from routes.auth_routes import auth_bp
 from dotenv import load_dotenv
 import os
 
-# # Create a new Flask app
-# app = Flask(__name__)
-# conn = DatabaseConnection()
-# conn.configure_app(app)
-# auth = Blueprint('auth', __name__)
-
-def create_app(test_config=None):
+def create_app(test_config=None, instance_relative_config=True):
     """Create and configure the Flask app"""
     app = Flask(__name__)
     
@@ -38,22 +32,16 @@ def create_app(test_config=None):
     else:
         # Load the test configuration
         app.config.update(test_config)
-    
+        
     # Register blueprints
-    
     app.register_blueprint(animal_bp, url_prefix='/listings')
     app.register_blueprint(auth_bp)
-   
- 
+    
     
     # # Define routes
     
     # Other routes and configurations
-    # Below route just for the sake of a test
-#     @app.route('/protected', methods=['GET'])
-# #    @token_checker
-#     def protected_route():
-#         return jsonify({"message": f"Access granted, user_id: {request}"}), 200
+
     
     return app
 
@@ -114,9 +102,7 @@ def update_is_active(id):
 def signup():
     with app.app_context():
         data = request.get_json()
-        print('Received the data:', data)
         req_email = data.get('email')
-        # Password hashing happens here
         plaintext_password = data['password']
         hashed_password = bcrypt.generate_password_hash(plaintext_password).decode('utf-8') 
 
@@ -145,9 +131,12 @@ def signup():
             "shelter_id": user.shelter_id
             }
         token = generate_token(req_email, token_data)
-        data = decode_token(token)
-        return jsonify({"token": token.decode('utf-8'), "user_id": data.get('id'), "shelter_id": data.get('shelter_id')}), 201
-        # return jsonify(user.as_dict()), 201
+        return jsonify({"token": token,
+                        "user": {
+                            "id": user.id,
+                            "shelter_id": user.shelter_id
+                            },
+                        }), 201
 
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database
