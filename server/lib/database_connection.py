@@ -24,20 +24,17 @@ class DatabaseConnection:
 
     def _database_name(self):
         if self.test_mode:
-            return os.getenv("TEST_DATABASE_NAME")
+            return os.environ.get("TEST_DATABASE_NAME")
         else:
-            return os.getenv("DEV_DATABASE_NAME")
+            return os.environ.get("DEV_DATABASE_NAME")
     
     def _database_url(self):
-        db_user = os.getenv("DATABASE_USER")
-        db_password = os.getenv("DATABASE_PASSWORD")
-        hostname = os.getenv("DATABASE_HOST")
 
         db_url = URL.create(
             drivername="postgresql",
-            username=db_user,
-            password=db_password,
-            host=hostname,
+            username=os.environ.get("DATABASE_USER"),
+            password=os.environ.get("DATABASE_PASSWORD"),
+            host=os.environ.get("DATABASE_HOST"),
             database=self._database_name()
         )
         return db_url
@@ -79,7 +76,7 @@ class DatabaseConnection:
 
         app.config['SQLALCHEMY_DATABASE_URI'] = self._database_url()
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
         # app.config['SQLALCHEMY_ECHO'] = True
 
         # intialise SQLAlchemy with app
