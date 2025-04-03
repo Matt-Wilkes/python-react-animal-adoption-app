@@ -1,24 +1,28 @@
+from pathlib import Path
 import click
 from flask import Blueprint, Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from sqlalchemy import select
-from db.seed import Animal, User, users, animals, shelters
+from db.seed import Animal, User, users, animals
 from routes.auth import generate_token, decode_token, token_checker
 from flask_bcrypt import Bcrypt 
 from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
 from routes.auth_routes import auth_bp
-
+# from dotenv import load_dotenv
+import os
 
 # Photo upload
 # from werkzeug.utils import secure_filename
 # import FileUploader
 # End photo upload.
 
-from dotenv import load_dotenv
-import os
+
+
+app_dir = Path(os.path.dirname(os.path.abspath(__file__)))
+print(f'app path:{app_dir}')
 
 def create_app(test_config=None, instance_relative_config=True):
     """Create and configure the Flask app"""

@@ -41,7 +41,6 @@ class DatabaseConnection:
     
     def _get_keys(self, app: Flask): 
         config_path = Path(app.root_path)/ 'config'
-        
         private_key_path = os.path.join(app.instance_path, 'private_key.pem')
         public_key_path = os.path.join(config_path, 'public_key.pem')
         
@@ -73,8 +72,11 @@ class DatabaseConnection:
         
         env_path = Path(app.instance_path) / '.env'
         load_dotenv(dotenv_path=env_path)
-
-        app.config['SQLALCHEMY_DATABASE_URI'] = self._database_url()
+        if os.environ.get('CI') == 'true':
+            app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        else:
+            app.config['SQLALCHEMY_DATABASE_URI'] = self._database_url()
+            
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
         # app.config['SQLALCHEMY_ECHO'] = True
