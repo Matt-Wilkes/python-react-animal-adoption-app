@@ -42,14 +42,39 @@ class DatabaseConnection:
         )
         return db_url
     
+    def _get_keys(self, app: Flask): 
+        config_path = Path(app.root_path)/ 'config'
+        
+        private_key_path = os.path.join(app.instance_path, 'private_key.pem')
+        public_key_path = os.path.join(config_path, 'public_key.pem')
+        
+        
+        private_key_pem = os.environ.get('PRIVATE_KEY', None)
+        if private_key_pem:
+            private_key_pem = private_key_pem.encode('utf-8')
+        elif os.path.exists(private_key_path):
+            with open(private_key_path, 'rb') as f:
+                private_key_pem = f.read()
+        else:
+            raise FileNotFoundError("Private key not found in environment or file system")
+        
+        if os.path.exists(public_key_path):
+            with open(public_key_path, 'rb') as f:
+                public_key_pem = f.read()
+        
+        return private_key_pem, public_key_pem
+    
+    def _set_keys(self, app):
+        private_key_pem, public_key_pem = self._get_keys(app)
+        
+        from joserfc.jwk import RSAKey
+        app.config['JWT_PRIVATE_KEY'] = RSAKey.import_key(private_key_pem)
+        app.config['JWT_PUBLIC_KEY'] = RSAKey.import_key(public_key_pem)
+    
     def configure_app(self, app: Flask):
         """configure a flask app and set up a connection to the database"""
         
-        os.makedirs(app.instance_path, exist_ok=True)
-        
-        instance_path = app.instance_path
-        env_path = Path(instance_path) / '.env'
-       
+        env_path = Path(app.instance_path) / '.env'
         load_dotenv(dotenv_path=env_path)
 
         app.config['SQLALCHEMY_DATABASE_URI'] = self._database_url()
@@ -60,21 +85,8 @@ class DatabaseConnection:
         # intialise SQLAlchemy with app
         db.init_app(app)
         
-        private_key_path = os.path.join(instance_path, 'private_key.pem')
-        public_key_path = os.path.join(instance_path, 'public_key.pem')
+        self._set_keys(app)
         
-        if os.path.exists(private_key_path) and os.path.exists(public_key_path):
-            with open(private_key_path, 'rb') as f:
-                private_key_pem = f.read()
-            
-            with open(public_key_path, 'rb') as f:
-                public_key_pem = f.read()
-        
-        from joserfc.jwk import RSAKey
-        app.config['JWT_PRIVATE_KEY'] = RSAKey.import_key(private_key_pem)
-        app.config['JWT_PUBLIC_KEY'] = RSAKey.import_key(public_key_pem)
-        
-       
         # store ref to the app, lets DatabaseConnection keep track of which app is configured
         # allows other methods in the class to accept app instance if needed
         # enables use of self.app.app_context() 

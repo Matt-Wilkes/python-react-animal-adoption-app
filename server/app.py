@@ -24,6 +24,8 @@ def create_app(test_config=None, instance_relative_config=True):
     """Create and configure the Flask app"""
     app = Flask(__name__)
     
+    os.makedirs(app.instance_path, exist_ok=True)
+    
     # Configure the app
     if test_config is None:
         # Load the default configuration
