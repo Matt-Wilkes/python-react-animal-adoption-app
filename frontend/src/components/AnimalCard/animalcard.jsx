@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
 
 const AnimalCard = ({
+  id,
   name,
   age,
   breed,
@@ -15,9 +16,10 @@ const AnimalCard = ({
   image,
   button1Text,
   linkUrl,
+  shelter_id
 }) => {
-  const dummyImage = "https://via.placeholder.com/265"; // Dummy image URL
-  const realImage = import.meta.env.VITE_BACKEND_URL + "/upload/" + image;
+  // const dummyImage = "https://via.placeholder.com/265"; // Dummy image URL
+  // const realImage = import.meta.env.VITE_BACKEND_URL + "/upload/" + image;
 
   return (
     <Card
@@ -32,7 +34,8 @@ const AnimalCard = ({
       <Link to={linkUrl} style={{ textDecoration: "none", color: "inherit" }}>
         <CardMedia
           sx={{ height: 265, width: "100%", objectFit: "cover" }}
-          image={realImage || dummyImage}
+          // image={realImage || dummyImage}
+          image={""}
         />
       </Link>
       <CardContent style={{ padding: "16px", color: "#003554" }}>
@@ -55,7 +58,8 @@ const AnimalCard = ({
         </Typography>
       </CardContent>
       <CardActions style={{ justifyContent: "center" }}>
-        <a href={linkUrl} style={{ textDecoration: "none" }}>
+        {/* <a href={linkUrl} style={{ textDecoration: "none" }}> */}
+        <Link to={linkUrl} style={{ textDecoration: "none", color: "inherit" }}>
           <Button
             variant="contained"
             sx={{
@@ -71,13 +75,14 @@ const AnimalCard = ({
           >
             {button1Text}
           </Button>
-        </a>
+          </Link>
       </CardActions>
     </Card>
   );
 };
 // Define the prop types for the component
 AnimalCard.propTypes = {
+  id: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   age: PropTypes.number.isRequired,
   breed: PropTypes.string.isRequired,
@@ -85,6 +90,7 @@ AnimalCard.propTypes = {
   image: PropTypes.string,
   button1Text: PropTypes.string,
   linkUrl: PropTypes.string.isRequired,
+  shelter_id: PropTypes.number.isRequired,
 };
 
 export default AnimalCard;

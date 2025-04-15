@@ -41,7 +41,7 @@ const AllAnimals = () => {
           }}
         >
           {animalsState.map((animal) => {
-            const { id, image, name, breed, age, location } = animal;
+            const { id, image, name, breed, age, location, shelter_id } = animal;
             console.log ("Image from DB: " + image);
             return (
               <div
@@ -52,6 +52,7 @@ const AllAnimals = () => {
                 }}
               >
                 <AnimalCard
+                  id={id}
                   image={image}
                   name={name}
                   age={age}
@@ -59,6 +60,7 @@ const AllAnimals = () => {
                   location={location}
                   button1Text={`Meet ${name}`}
                   linkUrl={`/animals/${id}`} 
+                  shelter_id={shelter_id}
                               />
               </div>
             );

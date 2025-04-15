@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 import click
 from flask import Blueprint, Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
@@ -38,7 +39,6 @@ def create_app(test_config=None, instance_relative_config=True):
     else:
         # Load the test configuration
         app.config.update(test_config)
-        
     # Register blueprints
     app.register_blueprint(animal_bp, url_prefix='/listings')
     app.register_blueprint(auth_bp)
@@ -55,7 +55,9 @@ def create_app(test_config=None, instance_relative_config=True):
 app = create_app()
 
 
-CORS(app)
+CORS(app,
+     origins=["http://localhost:5173"],
+     supports_credentials=True)
 
 # Encryption with Bcrypt
 bcrypt = Bcrypt(app) 
@@ -87,19 +89,19 @@ app.cli.add_command(seed_db_command)
 # This backend function allows a user to update the isActive field in the database 
 # This is mainly used when the user wants to 'hide' an animal profile by setting isActive to false
 
-@app.route('/listings/<int:id>/change_isactive', methods=['PUT'])
-@token_checker 
-def update_is_active(id):
-    with app.app_context():
-        animal = Animal.query.get(id)
-        if not animal:
-            return jsonify({"message": "Animal not found"}), 404
+# @app.route('/<int:id>/change_isactive', methods=['PUT'])
+# @token_checker 
+# def update_is_active(id):
+#     with app.app_context():
+#         animal = Animal.query.get(id)
+#         if not animal:
+#             return jsonify({"message": "Animal not found"}), 404
         
-        data = request.get_json()
-        animal.isActive = data.get('isActive', animal.isActive)
+#         data = request.get_json()
+#         animal.isActive = data.get('isActive', animal.isActive)
         
-        db.session.commit()
-        return jsonify(animal.as_dict()), 200
+#         db.session.commit()
+#         return jsonify(animal.as_dict()), 200
     
 
 
@@ -152,9 +154,9 @@ if __name__ == '__main__':
     
 ############ Photo Upload.
 
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
-app.config['UPLOAD_PATH'] = 'uploads'
+# app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
+# app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+# app.config['UPLOAD_PATH'] = 'uploads'
 
 # # Test to allow system admin to view files.
 # @app.route('/upload', methods=['GET'])
@@ -177,9 +179,9 @@ app.config['UPLOAD_PATH'] = 'uploads'
 #     return '', 204
 
 # 
-@app.route('/upload/<filename>')
-def upload(filename):
-    return send_from_directory(os.getenv("PHOTO_UPLOAD_LOCATION"), filename)
+# @app.route('/upload/<filename>')
+# def upload(filename):
+#     return send_from_directory(os.getenv("PHOTO_UPLOAD_LOCATION"), filename)
 
 # # Validator for Dropzone js component.
 # @app.errorhandler(413)

@@ -14,6 +14,7 @@ import {
 import { editAnimal, getSingleAnimal, updateAnimalActiveStatus } from "../../services/animals";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuth, AuthProvider } from "../../components/Context/AuthProvider"
 
 export const AnimalAdvertPage = () => {
   const [animalData, setAnimalData] = useState(null);
@@ -22,24 +23,22 @@ export const AnimalAdvertPage = () => {
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
   const { id } = useParams();
+  const {token} = useAuth()
   const navigate = useNavigate();
 
-  // Get the JWT token from localStorage (or any other auth mechanism you're using)
-  const token = localStorage.getItem("token");
-  const shelter_id = localStorage.getItem("shelter_id");
 
   // HERE I AM EXPERIMENTING WITH GETTING AN IMAGE TO LOAD
-  const realImage = animalData?.image // The '?' is added in bc animalData is set to null on line 19. Code was failing w/out it
-  ? `${import.meta.env.VITE_BACKEND_URL}`+ "/upload/" + `${animalData.image}`
-  : "https://via.placeholder.com/265";
+  // const realImage = animalData?.image // The '?' is added in bc animalData is set to null on line 19. Code was failing w/out it
+  // ? `${import.meta.env.VITE_BACKEND_URL}`+ "/upload/" + `${animalData.image}`
+  // : "https://via.placeholder.com/265";
 
-  console.log("AnimalAdvertPage received id:", id);
+  // console.log("AnimalAdvertPage received id:", id);
 
   useEffect(() => {
     const fetchAnimalData = async () => {
       try {
         const data = await getSingleAnimal(id);
-        console.log("Fetched animal data:", data); 
+        // console.log("Fetched animal data:", data); 
         setAnimalData(data);
         setFormData(data)
       } catch (error) {
@@ -64,7 +63,7 @@ export const AnimalAdvertPage = () => {
   }
 
 // Debugging line to check if data is undefined, null, or empty
-console.log("Current animalData state:", animalData);
+// console.log("Current animalData state:", animalData);
   
 if (!animalData) {
     return (
@@ -108,7 +107,8 @@ if (!animalData) {
     alert('This animal profile has now been hidden from all animal listings')
     navigate('/animals')
   };
-  console.log("Current isActive state:", isActive);
+  // console.log("Current isActive state:", isActive);
+  
 
   return (
     <Card
@@ -122,7 +122,7 @@ if (!animalData) {
       <CardMedia
         component="img"
         height="265"
-        image={realImage}
+        image={''}
         alt={`${animalData.name}'s image`}
       />
       <CardContent>
@@ -163,23 +163,25 @@ if (!animalData) {
                 secondary={animalData.livesWithChildren ? "Yes" : "No"}
               />
             </ListItem>
+           
             <ListItem>
               <ListItemText 
                 primary="Email" 
-                secondary={
-                  <a 
-                    href={`mailto:${animalData.shelter_id.email}?subject=Inquiry%20about%20adopting%20${encodeURIComponent(animalData.name)}&body=Hi,%20I'm%20interested%20in%20adopting%20${encodeURIComponent(animalData.name)}.%20Could%20I%20get%20some%20more%20info?`}
-                  >
-                    {animalData.shelter_id.email}
-                  </a>
-                } 
+                // secondary={
+                //   // href may restart the app
+                //   // <a 
+                //   //   href={`mailto:${animalData.shelter_id.email}?subject=Inquiry%20about%20adopting%20${encodeURIComponent(animalData.name)}&body=Hi,%20I'm%20interested%20in%20adopting%20${encodeURIComponent(animalData.name)}.%20Could%20I%20get%20some%20more%20info?`}
+                //   // >
+                //   //   {animalData.shelter_id.email}
+                //   // </a>
+                // } 
               />
             </ListItem>
           </List>
         </Box>
 
         {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
-        {token && (shelter_id == animalData.shelter_id) && (
+        {token && (animalData.shelter_id == 1) && (
           <Box sx={{ mt: 4, textAlign: "center" }}>
             <Button variant="contained" color="primary" onClick={handleEditClick}>
               Edit {animalData.name}'s profile

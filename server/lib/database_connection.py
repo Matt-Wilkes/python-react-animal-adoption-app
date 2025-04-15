@@ -40,6 +40,7 @@ class DatabaseConnection:
         return db_url
     
     def _get_keys(self, app: Flask): 
+        """ return public and private keys"""
         config_path = Path(app.root_path)/ 'config'
         private_key_path = os.path.join(app.instance_path, 'private_key.pem')
         public_key_path = os.path.join(config_path, 'public_key.pem')
@@ -61,6 +62,7 @@ class DatabaseConnection:
         return private_key_pem, public_key_pem
     
     def _set_keys(self, app):
+        """set private and public keys"""
         private_key_pem, public_key_pem = self._get_keys(app)
         
         from joserfc.jwk import RSAKey

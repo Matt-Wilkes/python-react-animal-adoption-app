@@ -17,11 +17,12 @@ import {
 } from "@mui/material";
 import { createAnimal } from "../../services/animals";
 import { Add, Remove } from "@mui/icons-material";
+import { AuthProvider, useAuth } from "../../components/Context/AuthProvider";
 
 
 export const CreateAdvertPage = () => {
   const [message, setMessage] = useState("");
-  const token = localStorage.getItem("token"); 
+  const {token} = useAuth()
   const [formData, setFormData] = useState({
     name: "",
     species: "",
