@@ -12,12 +12,12 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { useEffect, useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../Context/AuthContext";
+import { AuthProvider, useAuth } from "../Context/AuthProvider";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const { token, setToken } = useContext(AuthContext);
+  const { token, setToken } = useAuth()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -43,7 +43,7 @@ const Navbar = () => {
 
   const handleLogoutClick = () => {
     if (token) {
-      localStorage.removeItem("token");
+      // localStorage.removeItem("token");
       setToken(null);
     } 
     setLoggedIn(false);
@@ -98,12 +98,12 @@ const Navbar = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
+              {/* <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Home</Typography>
               </MenuItem>
               <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Animals</Typography>
-              </MenuItem>
+              </MenuItem> */}
               {!loggedIn && (
                 <Menu>
                   <MenuItem component={Link} to="/sign-up" onClick={handleCloseNavMenu}>
@@ -119,9 +119,9 @@ const Navbar = () => {
                   <MenuItem component={Link} to="/create-advert" onClick={handleCloseNavMenu}>
                       <Typography textAlign="center">Create Advert</Typography>
                     </MenuItem>
-                    <MenuItem component={Link} to="/my-animals" onClick={handleCloseNavMenu}>
+                    {/* <MenuItem component={Link} to="/my-animals" onClick={handleCloseNavMenu}>
                       <Typography textAlign="center">My Animals</Typography>
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem onClick={handleLogoutClick}>
                       <Typography textAlign="center">Logout</Typography>
                     </MenuItem>
@@ -256,7 +256,7 @@ const Navbar = () => {
                 >
                   <Typography textAlign="center">Create Advert</Typography>
                 </MenuItem>
-                <MenuItem
+                {/* <MenuItem
                   onClick={handleCloseUserMenu}
                   component={Link}
                   to="/my-animals"
@@ -264,7 +264,7 @@ const Navbar = () => {
                   sx={{ color: "#003554" }}  
                 >
                   <Typography textAlign="center">My Animals</Typography>
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem
                   onClick={handleLogoutClick}
                   component={Link}

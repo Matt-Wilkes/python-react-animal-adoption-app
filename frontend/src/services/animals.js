@@ -68,14 +68,14 @@ export const getSingleAnimal = async (id) => {
   }
 };
 
-/**
- * This function allows a user to edit an existing animal listing
- * @param token (authentication),
- * @param animalID of animal to be edited, 
- * @param updatedAnimalData - new data to be written in database
- * Makes a request to backend URL for PUT request 
- * Returns success message, response status, and added data
- */
+// /**
+//  * This function allows a user to edit an existing animal listing
+//  * @param token (authentication),
+//  * @param animalID of animal to be edited, 
+//  * @param updatedAnimalData - new data to be written in database
+//  * Makes a request to backend URL for PUT request 
+//  * Returns success message, response status, and added data
+//  */
 export const editAnimal = async (token, animalId, updatedAnimalData) => {
   const requestOptions = {
     method: "PUT",

@@ -15,42 +15,59 @@ load_dotenv()
 secret = os.getenv('SECRET_KEY')
 # current_app.config['SECRET_KEY']
 
-claims_requests = JWTClaimsRegistry(
+access_claims_registry = JWTClaimsRegistry(
     iss={"essential": True, "value": "pawsforacause"},
-    exp={"essential": True, "validate": True}
+    exp={"essential": True, "validate": True, "leeway": 60},
+    token_type={"essential": True, "value": "access"}
+)
+
+refresh_claims_registry = JWTClaimsRegistry(
+    iss={"essential": True, "value": "pawsforacause"},
+    exp={"essential": True, "validate": True, "leeway": 60},
+    token_type={"essential": True, "value": "refresh"}
 )
 
 # Encoding a JWT
 
-def generate_token(user_id, additional_claims=None):
+def generate_token(user_id, additional_claims=None, token_type='access', expiry=3600):
     private_jwk = current_app.config['JWT_PRIVATE_KEY']
+    current_time = int(time.time()) - 60
     
     header = {'alg': 'RS256'}
     
     claims = {
         "iss": "pawsforacause",
         "sub": str(user_id),
-        "iat": int(time.time()) -20,
-        "exp": int(time.time()) + 3600,  
+        "iat": current_time,
+        "exp": current_time + expiry,
+        "token_type": token_type
     }
     
     if additional_claims:
         claims.update(additional_claims)
     
     token = jwt.encode(header, claims, private_jwk)
+    print(f'auth_routes time: {int(time.time())}')
     return token
 
-def decode_token(token):
+def decode_token(token, token_type='access'):
     public_jwk = current_app.config['JWT_PUBLIC_KEY']
+    
     try:
         token_obj = jwt.decode(token, public_jwk)
         claims = token_obj.claims
-        claims_requests.validate(claims)
+
+        if token_type == 'access':
+            access_claims_registry.validate(claims)
+        elif token_type == 'refresh':
+            refresh_claims_registry.validate(claims)
+        else:
+            raise ValueError(f"Invalid token type: {token_type}")
         return token_obj  # This is a dictionary containing the token's data
     except Exception as e:
         # error_msg = str(e)
         # Handle errors such as invalid signature, expired token, etc.
-        print(f"Token decoding failed in decode: {e}")
+        print(f"Token decoding failed: {e}")
         return None
 
 def token_checker(f):
@@ -63,10 +80,17 @@ def token_checker(f):
         else:
             token = auth_header.split(" ")[1]
             
+        if not token:
+            return jsonify({"message": "Token is missing"}), 401
+            
         try:
-            valid_token = decode_token(token)
+            valid_token = decode_token(token, token_type='access')
+            
             if not valid_token:
                 return jsonify({"message": "Invalid or expired token!"}), 401
+            
+            if valid_token.claims.get("token_type") != "access":
+                return jsonify({"message": "Invalid token type!"}), 401
             
             user_id = valid_token.claims.get("id")
             
@@ -76,7 +100,7 @@ def token_checker(f):
             if user_id is None:
                 return jsonify({"message": "Token missing user_id"}), 401
             
-            request.user_id = valid_token.claims.get("id")
+            request.user_id = user_id
             
         except Exception as e:
             print(f"Error processing token claims: {str(e)}")

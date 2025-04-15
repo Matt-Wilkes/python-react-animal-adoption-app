@@ -9,10 +9,10 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import CardHeader from "@mui/material/CardHeader";
 import { signup } from "/src/Services/users.js";
-import { AuthContext } from "../../components/Context/AuthContext"
+import { AuthProvider, useAuth } from "../../components/Context/AuthProvider"
 
 export const SignUpPage = () => {
-  const {token, setToken} = useContext(AuthContext)
+  const {token, setToken} = useAuth()
   const [message, setMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [formData, setFormData] = useState({
@@ -72,10 +72,7 @@ export const SignUpPage = () => {
       if (data === "User with email provided already exists") {
         setMessage(data);
       } else {
-        localStorage.setItem("token", data.token)
-        localStorage.setItem("user_id", data.user_id)
-        localStorage.setItem("shelter_id", data.shelter_id)
-        setToken(localStorage.getItem("token"))
+        setToken(data.token)
         navigate("/create-advert", { state: [0, data.message] });
       }
     } catch (err) {
