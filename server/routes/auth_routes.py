@@ -15,6 +15,14 @@ def login():
     token = auth_repository.get_token(data)
     return token
 
+@auth_bp.route('/logout', methods=['POST'])
+@cross_origin(supports_credentials=True)
+def logout():
+    response = jsonify({"message": "logged out successfully"})
+    print(response)
+    response.delete_cookie('refresh_token', path='/')
+    return response, 200
+
 @auth_bp.route('/refresh-token', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def refresh_token():
