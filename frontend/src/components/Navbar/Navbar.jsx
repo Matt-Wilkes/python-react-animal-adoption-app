@@ -17,7 +17,7 @@ import { AuthProvider, useAuth } from "../Context/AuthProvider";
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const { token, setToken } = useAuth()
+  const { token, setToken, logout } = useAuth()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -41,13 +41,14 @@ const Navbar = () => {
     setLoggedIn(!!token);
   }, [token]);
 
-  const handleLogoutClick = () => {
-    if (token) {
-      // localStorage.removeItem("token");
-      setToken(null);
-    } 
-    setLoggedIn(false);
-    navigate("/login");
+  const handleLogoutClick = async () => {
+    await logout()
+    // if (token) {
+    //   // localStorage.removeItem("token");
+    //   setToken(null);
+    // } 
+    // setLoggedIn(false);
+    // navigate("/login");
   };
 
   return (

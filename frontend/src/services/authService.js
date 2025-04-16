@@ -29,6 +29,17 @@ export const loginService = async (email, password) => {
     return data;
   };
 
+export const logoutService = async () => {
+
+  const requestOptions = {
+      method: "POST",
+      credentials: 'include'
+    }
+  
+  const response = await fetch(`${BACKEND_URL}/logout`, requestOptions);
+  return response
+}
+
 export const refreshToken = async () => {
   console.log("Document cookies before refresh:", document.cookie);
   

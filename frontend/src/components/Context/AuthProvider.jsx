@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from "react";
-import { loginService, refreshToken } from "../../services/authService"
+import { loginService, logoutService, refreshToken } from "../../services/authService"
 import { jwtDecode } from "jwt-decode";
 
 
@@ -102,8 +102,11 @@ const handleLogin = async (email, password) => {
 const handleLogout = async () => {
   try {
     console.log("logging out");
+    await logoutService();
     setToken(null);
     setIsAuthenticated(false);
+
+    navigate("/login");
     return true
   } catch (error) {
     console.error("Logout error", error)
