@@ -123,3 +123,15 @@ def test_expired_token_is_rejected(app_ctx, client, db_connection, test_user, mo
     
     assert response.status_code == 401
     assert response.json['message'] == 'Invalid or expired token!'
+    
+def test_logout_removes_token(app_ctx, client, db_connection, test_user, mocker):  
+    
+    response = client.post('/logout')
+    
+    cookie_header = response.headers.get('Set-Cookie')
+    print(cookie_header)
+    assert response.status_code == 200
+    assert 'Set-Cookie' in response.headers
+    assert 'refresh_token=' in cookie_header
+    assert 'Max-Age=0' in cookie_header or 'Expires=' in cookie_header
+    assert response.json['message'] == 'logged out successfully'

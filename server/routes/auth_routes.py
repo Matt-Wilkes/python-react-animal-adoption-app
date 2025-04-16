@@ -19,7 +19,6 @@ def login():
 @cross_origin(supports_credentials=True)
 def logout():
     response = jsonify({"message": "logged out successfully"})
-    print(response)
     response.delete_cookie('refresh_token', path='/')
     return response, 200
 

@@ -47,7 +47,6 @@ def generate_token(user_id, additional_claims=None, token_type='access', expiry=
         claims.update(additional_claims)
     
     token = jwt.encode(header, claims, private_jwk)
-    print(f'auth_routes time: {int(time.time())}')
     return token
 
 def decode_token(token, token_type='access'):

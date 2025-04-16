@@ -44,15 +44,12 @@ class AuthRepository:
     
     def get_access_token(self, refresh_token):
         if not refresh_token:
-            print("No refresh token provided in request")
             return jsonify({"error": "No refresh_token provided"}), 401
         try:
             decoded = decode_token(refresh_token)
-            
-            print(f"Decoded refresh token: {decoded}")
-            
+
             if decoded.get('token_type') != 'refresh':
-                print(f"Invalid token type: {decoded.get('token_type')}")
+                # print(f"Invalid token type: {decoded.get('token_type')}")
                 return jsonify({"error":"Invalid token type"}), 401
             user_email = decoded.get('sub')
             
