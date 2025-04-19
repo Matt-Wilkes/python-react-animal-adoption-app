@@ -50,9 +50,20 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
     @app.route('/assets/images/<int:id>')
     def get_profile_image(id):
         directory = f"{app.config['UPLOAD_FOLDER']}/{id}"
-        assets = [file for file in os.listdir(directory)]
-        profile_image = ''.join(list(filter(lambda filename: filename.lower().startswith("profile"), assets)))
-        return send_from_directory(directory, profile_image)
+        if not os.path.isdir(directory):
+            return f"Directory {directory} not found", 404
+        try:
+            assets = [file for file in os.listdir(directory)]
+            profile_images = list(filter(lambda filename: filename.lower().startswith("profile"), assets))
+            profile_image = profile_images[0]
+            
+            if not profile_image:
+                return "Profile image not found", 404
+            
+            return send_from_directory(directory, profile_image), 200
+
+        except Exception as e:
+            return "Error serving image", 500
     
     return app
 

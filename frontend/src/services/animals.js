@@ -74,9 +74,16 @@ export const getProfileImage = async (id) => {
   };
   try {
     const response = await fetch(`${BACKEND_URL}/assets/images/${id}`, requestOptions);
-    if (response.status !== 200) {
-      throw new Error("Unable to fetch these assets");
+    if(!response.ok) {
+      const errorText = await response.text()
+
+      if (response.status == 404) {
+        throw new Error(errorText)
+      } else {
+        throw new Error("Unable to fetch profile image")
+      }
     }
+    
     const imageBlob = await response.blob();
 
     const imageUrl = URL.createObjectURL(imageBlob);

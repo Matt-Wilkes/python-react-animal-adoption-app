@@ -25,7 +25,12 @@ const AnimalCard = ({
     const fetchProfileImage = async () => {
       try {
         const image = await getProfileImage(id)
-        setProfileImage(image)
+        if (image) {
+          setProfileImage(image)
+        }
+        else {
+          setProfileImage("../../public/profile_placeholder.png")
+        }
       } catch (error) {
         console.error('error', error)
       }

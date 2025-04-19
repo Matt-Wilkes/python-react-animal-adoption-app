@@ -10,26 +10,28 @@ def test_get_all_animals(app_ctx, app, animal_repository):
     repo, test_animals = animal_repository
     animals = repo.get_all()
     assert len(animals) == len(test_animals)
-"""
-get_all_active should return all animals where 'isActive' is True
-"""
+
 def test_get_all_active(app_ctx, app, animal_repository):
+    """
+    get_all_active should return all animals where 'isActive' is True
+    """
     repo, test_animals = animal_repository
     active_animals = repo.get_all_active()
     assert len(active_animals) == 2
         
-"""
-get_by_id should return the animal with a matching id
-"""
+
 def test_get_by_id(app_ctx, app, animal_repository):
+    """
+    get_by_id should return the animal with a matching id
+    """
     repo, test_animals = animal_repository
     animal = repo.get_by_id(3)
     assert animal.id == 3
 
-"""
-create_new_animal should create a new animal
-"""
 def test_create_new_animal(app_ctx, app, animal_repository):
+    """
+    create_new_animal should create a new animal
+    """
     repo, test_animals = animal_repository
 
     animal_data = {
@@ -54,10 +56,11 @@ def test_create_new_animal(app_ctx, app, animal_repository):
     assert animals[3].name == "new animal"
     assert animal.name == "new animal"
     assert len(animals) == len(test_animals)+1
-"""
-update_animal should update animal fields
-"""
+
 def test_update_animal(app_ctx, app, animal_repository):
+    """
+    update_animal should update animal fields
+    """
     repo, test_animals = animal_repository
     animal_data = {
     "id": 3,
