@@ -25,7 +25,7 @@ import os
 app_dir = Path(os.path.dirname(os.path.abspath(__file__)))
 print(f'app path:{app_dir}')
 
-def create_app(test_config=None, instance_relative_config=True):
+def create_app(test_config=None, instance_relative_config=True, static_folder='static'):
     """Create and configure the Flask app"""
     app = Flask(__name__)
     
@@ -43,11 +43,16 @@ def create_app(test_config=None, instance_relative_config=True):
     app.register_blueprint(animal_bp, url_prefix='/listings')
     app.register_blueprint(auth_bp)
     
-    
     # # Define routes
     
     # Other routes and configurations
-
+    
+    @app.route('/assets/images/<int:id>')
+    def get_profile_image(id):
+        directory = f"{app.config['UPLOAD_FOLDER']}/{id}"
+        assets = [file for file in os.listdir(directory)]
+        profile_image = ''.join(list(filter(lambda filename: filename.lower().startswith("profile"), assets)))
+        return send_from_directory(directory, profile_image)
     
     return app
 

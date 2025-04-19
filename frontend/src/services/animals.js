@@ -68,6 +68,25 @@ export const getSingleAnimal = async (id) => {
   }
 };
 
+export const getProfileImage = async (id) => {
+  const requestOptions = {
+    method: "GET",
+  };
+  try {
+    const response = await fetch(`${BACKEND_URL}/assets/images/${id}`, requestOptions);
+    if (response.status !== 200) {
+      throw new Error("Unable to fetch these assets");
+    }
+    const imageBlob = await response.blob();
+
+    const imageUrl = URL.createObjectURL(imageBlob);
+    return imageUrl;
+   
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
 // /**
 //  * This function allows a user to edit an existing animal listing
 //  * @param token (authentication),

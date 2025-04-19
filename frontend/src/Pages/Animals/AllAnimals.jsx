@@ -7,13 +7,14 @@ import AnimalCard from "../../components/AnimalCard/animalcard";
 // This component fetches all the animals from the database and displays them in a card format.
 const AllAnimals = () => {
   const [animalsState, setAnimalsState] = useState([]);
+  
 
   const fetchAnimals = () => {
     getAnimals()
       .then((data) => {
         console.log("I have data");
 
-        if (data && Array.isArray(data  )) {
+        if (data && Array.isArray(data)) {
           setAnimalsState(data);
         } else {
           console.error("Unexpected data format:", data);
@@ -41,8 +42,9 @@ const AllAnimals = () => {
           }}
         >
           {animalsState.map((animal) => {
-            const { id, image, name, breed, age, location, shelter_id } = animal;
-            console.log ("Image from DB: " + image);
+            const { id, name, breed, age, location, shelter_id } = animal;
+            {/* const image = await getProfileImage(id) */}
+            {/* console.log ("Image from DB: " + image); */}
             return (
               <div
                 key={id} 
@@ -53,7 +55,7 @@ const AllAnimals = () => {
               >
                 <AnimalCard
                   id={id}
-                  image={image}
+                  // image={getProfileImage(id)}
                   name={name}
                   age={age}
                   breed={breed}

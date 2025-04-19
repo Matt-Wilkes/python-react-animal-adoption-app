@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState} from "react";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -6,6 +7,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
+import { getProfileImage } from "../../services/animals";
 
 const AnimalCard = ({
   id,
@@ -13,13 +15,23 @@ const AnimalCard = ({
   age,
   breed,
   location,
-  image,
   button1Text,
   linkUrl,
   shelter_id
 }) => {
-  // const dummyImage = "https://via.placeholder.com/265"; // Dummy image URL
-  // const realImage = import.meta.env.VITE_BACKEND_URL + "/upload/" + image;
+  const [profileImage, setProfileImage] = useState("../../public/profile_placeholder.png")
+
+  useEffect( () => {
+    const fetchProfileImage = async () => {
+      try {
+        const image = await getProfileImage(id)
+        setProfileImage(image)
+      } catch (error) {
+        console.error('error', error)
+      }
+    }
+    fetchProfileImage()
+  }, [])
 
   return (
     <Card
@@ -34,8 +46,7 @@ const AnimalCard = ({
       <Link to={linkUrl} style={{ textDecoration: "none", color: "inherit" }}>
         <CardMedia
           sx={{ height: 265, width: "100%", objectFit: "cover" }}
-          // image={realImage || dummyImage}
-          image={""}
+          image={profileImage}
         />
       </Link>
       <CardContent style={{ padding: "16px", color: "#003554" }}>
