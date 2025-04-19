@@ -33,7 +33,7 @@ export const CreateAdvertPage = () => {
     bio: "",
     neutered: false,
     livesWithChildren: false,
-    // image: null,
+    images: 0,
   });
 
   const navigate = useNavigate();
@@ -77,6 +77,7 @@ export const CreateAdvertPage = () => {
         bio: formData.bio,
         neutered: formData.neutered,
         lives_with_children: formData.livesWithChildren,
+        images: formData.images
       });
 
       if (animal.status === 201) {
