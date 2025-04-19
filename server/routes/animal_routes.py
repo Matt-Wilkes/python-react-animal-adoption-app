@@ -1,5 +1,4 @@
 
-# Mocking potential routes used for creating an animal 
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 

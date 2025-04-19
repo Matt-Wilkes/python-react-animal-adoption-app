@@ -11,7 +11,7 @@ import {
   TextField,
   CardMedia
 } from "@mui/material";
-import { editAnimal, getSingleAnimal, updateAnimalActiveStatus } from "../../services/animals";
+import { editAnimal, getSingleAnimal, getProfileImage, updateAnimalActiveStatus } from "../../services/animals";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "../../components/Context/AuthProvider"
@@ -19,28 +19,27 @@ import { useAuth, AuthProvider } from "../../components/Context/AuthProvider"
 export const AnimalAdvertPage = () => {
   const [animalData, setAnimalData] = useState(null);
   const [formData, setFormData] = useState({});
+  const [profileImage, setProfileImage] = useState("../../public/profile_placeholder.png")
   const [error, setError] = useState(null);
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
   const { id } = useParams();
   const {token} = useAuth()
   const navigate = useNavigate();
+  
 
-
-  // HERE I AM EXPERIMENTING WITH GETTING AN IMAGE TO LOAD
-  // const realImage = animalData?.image // The '?' is added in bc animalData is set to null on line 19. Code was failing w/out it
-  // ? `${import.meta.env.VITE_BACKEND_URL}`+ "/upload/" + `${animalData.image}`
-  // : "https://via.placeholder.com/265";
-
-  // console.log("AnimalAdvertPage received id:", id);
 
   useEffect(() => {
     const fetchAnimalData = async () => {
       try {
         const data = await getSingleAnimal(id);
         // console.log("Fetched animal data:", data); 
+        const image = await getProfileImage(id)
         setAnimalData(data);
         setFormData(data)
+        if (data.image != "") {
+          setProfileImage(image)
+        }
       } catch (error) {
         console.error("Failed to fetch animal data:", error);
         setError("Failed to fetch animal data");
@@ -122,7 +121,7 @@ if (!animalData) {
       <CardMedia
         component="img"
         height="265"
-        image={''}
+        image={profileImage}
         alt={`${animalData.name}'s image`}
       />
       <CardContent>

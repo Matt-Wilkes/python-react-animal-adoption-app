@@ -81,6 +81,7 @@ class DatabaseConnection:
             
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+        app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
         # app.config['SQLALCHEMY_ECHO'] = True
 
         # intialise SQLAlchemy with app
