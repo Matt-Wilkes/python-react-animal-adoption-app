@@ -8,11 +8,11 @@ import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import CardHeader from "@mui/material/CardHeader";
-import { signup } from "/src/Services/users.js";
+// import { signup } from "/src/Services/users.js";
 import { AuthProvider, useAuth } from "../../components/Context/AuthProvider"
 
 export const SignUpPage = () => {
-  const {token, setToken} = useAuth()
+  const {token, signup} = useAuth()
   const [message, setMessage] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [formData, setFormData] = useState({
@@ -68,13 +68,11 @@ export const SignUpPage = () => {
     }
 
     try {
-      const data = await signup(formData);
-      if (data === "User with email provided already exists") {
-        setMessage(data);
-      } else {
-        setToken(data.token)
-        navigate("/create-advert", { state: [0, data.message] });
+      const success = await signup(formData);
+      if (success) {
+        navigate("/create-advert")
       }
+     
     } catch (err) {
       console.error(err);
       setMessage("Error signing up. Please try again.");

@@ -29,6 +29,45 @@ export const loginService = async (email, password) => {
     return data;
   };
 
+export const signupService = async (formData) => {
+  const payload = {
+    first_name: formData.first_name,
+    last_name: formData.last_name,
+    email: formData.email,
+    password: formData.password,
+    shelter_id: formData.shelter_id,
+  };
+
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    credentials: 'include'
+  };
+
+  const response = await fetch(`${BACKEND_URL}/sign-up`, requestOptions);
+  // if (response.status === 201) {
+  //   const data = await response.json();
+  //   return data;
+  // } 
+  if (response.status !== 201){
+    if (response.status === 409) {
+      throw new Error("Signup Failed");
+    // const data = await response.json();
+    // alert(data.error || 'An error occurred during sign up. Use a registered shelter email');
+    // return data.message;
+  } else {
+    throw new Error(
+      `Received status ${response.status} when signing up. Expected 201`
+    );
+  }
+  }
+  const data = await response.json();
+  return data;
+};
+
 export const logoutService = async () => {
 
   const requestOptions = {

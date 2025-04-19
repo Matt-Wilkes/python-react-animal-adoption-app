@@ -4,7 +4,7 @@ import click
 from flask import Blueprint, Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from sqlalchemy import select
 from db.seed import Animal, User, users, animals
 from routes.auth import generate_token, decode_token, token_checker
@@ -123,6 +123,7 @@ app.cli.add_command(seed_db_command)
 
 # This function adds a new user to the database
 @app.route('/sign-up', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def signup():
     with app.app_context():
         data = request.get_json()
@@ -145,7 +146,6 @@ def signup():
             password=hashed_password,
             first_name=data['first_name'],
             last_name=data['last_name'],
-            # shelter_id=shelter_id
             shelter_id = data['shelter_id']
         )
         db.session.add(user)
@@ -154,13 +154,23 @@ def signup():
             "id": user.id,
             "shelter_id": user.shelter_id
             }
-        token = generate_token(req_email, token_data)
-        return jsonify({"token": token,
+        access_token = generate_token(req_email, token_data, token_type='access', expiry=900) 
+        refresh_token = generate_token(req_email, {"token_type": "refresh"}, token_type='refresh', expiry=604800) 
+        response = jsonify({"token": access_token,
                         "user": {
                             "id": user.id,
                             "shelter_id": user.shelter_id
                             },
-                        }), 201
+                        })
+        response.set_cookie('refresh_token',
+                            refresh_token,
+                            httponly=True,
+                            secure=False, # set to True in Prod
+                            samesite='Lax',
+                            max_age=604800,
+                            path='/'
+                            )
+        return response, 201
 
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database

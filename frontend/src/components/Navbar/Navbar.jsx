@@ -17,7 +17,7 @@ import { AuthProvider, useAuth } from "../Context/AuthProvider";
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const { token, setToken, logout } = useAuth()
+  const { token, logout, isAuthenticated } = useAuth()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
 
@@ -38,7 +38,7 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    setLoggedIn(!!token);
+    setLoggedIn(!!isAuthenticated);
   }, [token]);
 
   const handleLogoutClick = async () => {
