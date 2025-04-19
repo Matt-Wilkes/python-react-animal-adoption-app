@@ -71,7 +71,7 @@ def animal_repository(app, db_connection):
             bio="This is a test cat.",
             neutered=False,
             lives_with_children=False,
-            image="seed_cinnamon.png",
+            images=1,
             isActive=True,
             shelter=test_shelter
         ),
@@ -85,7 +85,7 @@ def animal_repository(app, db_connection):
             bio="This is a test dog.",
             neutered=False,
             lives_with_children=False,
-            image="seed_cinnamon.png",
+            images=1,
             isActive=True,
             shelter=test_shelter
         ),
@@ -99,7 +99,7 @@ def animal_repository(app, db_connection):
             bio="This is a test werewolf.",
             neutered=False,
             lives_with_children=False,
-            image="seed_cinnamon.png",
+            images=1,
             isActive=False,
             shelter=test_shelter
         )

@@ -44,7 +44,7 @@ def test_create_new_animal(app_ctx, app, animal_repository):
         "bio" : "This is a lovely cyborg",
         "neutered" : True,
         "lives_with_children" : True,
-        "image" : "",
+        "images" : 0,
         "isActive" : True,
         "shelter_id": 1
     }
@@ -73,7 +73,7 @@ def test_update_animal(app_ctx, app, animal_repository):
     "bio" : "This is a lovely werewolf",
     "neutered" : True,
     "lives_with_children" : True,
-    "image" : "seed_zara_test.jpg",
+    "images" : 1,
     "isActive" : True,
     "shelter_id": 1
 }
@@ -90,7 +90,7 @@ def test_update_animal(app_ctx, app, animal_repository):
         assert animal.bio == "This is a lovely werewolf"
         assert animal.neutered == True
         assert animal.lives_with_children == True
-        assert animal.image == "seed_zara_test.jpg"
+        assert animal.images == 1
         assert animal.isActive == True
         assert animal.shelter_id == 1
   

@@ -37,7 +37,7 @@ export const AnimalAdvertPage = () => {
         const image = await getProfileImage(id)
         setAnimalData(data);
         setFormData(data)
-        if (data.image != "") {
+        if (data.images != 0) {
           setProfileImage(image)
         }
       } catch (error) {
