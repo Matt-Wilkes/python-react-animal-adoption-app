@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from "react";
-import { loginService, logoutService, refreshToken } from "../../services/authService"
+import { loginService, logoutService, refreshToken, signupService } from "../../services/authService"
 import { jwtDecode } from "jwt-decode";
 
 
@@ -87,6 +87,7 @@ const handleLogin = async (email, password) => {
     const data = await loginService(email, password);
     if (data && data.token) {
       console.log("Login successful")
+      // console.log(data.token)
       setToken(data.token)
       setIsAuthenticated(true);
       return true
@@ -94,6 +95,24 @@ const handleLogin = async (email, password) => {
     return false
   } catch (error) {
     console.error("Login error", error);
+    setIsAuthenticated(false);
+    return false;
+  }
+}
+
+const handleSignUp = async (formData) => {
+  try {
+    console.log('attempting sign up...')
+    const data = await signupService(formData);
+    if (data && data.token) {
+      console.log("Sign Up successful")
+      setToken(data.token)
+      setIsAuthenticated(true);
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error("sign up error", error);
     setIsAuthenticated(false);
     return false;
   }
@@ -160,6 +179,7 @@ const contextValue = {
     token,
     isAuthenticated,
     isLoading,
+    signup: handleSignUp,
     login: handleLogin,
     logout: handleLogout,
     authFetch

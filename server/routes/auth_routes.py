@@ -34,4 +34,3 @@ def refresh_token():
 @token_checker
 def protected_route():
     return jsonify({"message": f"Access granted, user_id: {request}"}), 200
-
