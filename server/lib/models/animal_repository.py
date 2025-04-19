@@ -31,7 +31,7 @@ class AnimalRepository:
                 bio=data['bio'],
                 neutered=data['neutered'],
                 lives_with_children=data['lives_with_children'],
-                image="",
+                images=data['images'],
                 shelter_id=data['shelter_id']
             )
 

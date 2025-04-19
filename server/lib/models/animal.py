@@ -17,13 +17,13 @@ class Animal(Base):
     bio: Mapped[str] = mapped_column(String(2048), nullable=False)
     neutered: Mapped[bool] = mapped_column(Boolean, nullable=False)
     lives_with_children: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    image: Mapped[str] = mapped_column(String(255), nullable=True)
+    images: Mapped[int]
     isActive: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     shelter_id: Mapped[int] = mapped_column(ForeignKey("shelters.id"))
     
     def __repr__(self):
         try:
-            return f"Animal(id={self.id!r}, name={self.name!r}, species={self.species!r}, age={self.age!r}, breed={self.breed!r},location={self.location!r},male={self.male!r}, bio={self.bio!r}, neutered={self.neutered!r}, lives_with_children={self.lives_with_children!r} image={self.image!r}, isActive={self.isActive!r}, shelter_id={self.shelter_id!r})"
+            return f"Animal(id={self.id!r}, name={self.name!r}, species={self.species!r}, age={self.age!r}, breed={self.breed!r},location={self.location!r},male={self.male!r}, bio={self.bio!r}, neutered={self.neutered!r}, lives_with_children={self.lives_with_children!r} images={self.images!r}, isActive={self.isActive!r}, shelter_id={self.shelter_id!r})"
         except Exception:
             return f"Animal(detached)"
     
@@ -39,7 +39,7 @@ class Animal(Base):
             "bio": self.bio,
             "neutered": self.neutered,
             "lives_with_children": self.lives_with_children,
-            "image": self.image,
+            "images": self.images,
             "isActive": self.isActive,
             "shelter_id": self.shelter_id
         }
