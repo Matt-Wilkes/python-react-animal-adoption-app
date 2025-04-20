@@ -35,7 +35,7 @@ export const CreateAdvertPage = () => {
     livesWithChildren: false,
     images: 0,
   });
-
+  const {authFetch} = useAuth()
   const navigate = useNavigate();
 
   // Check for the token / navigate to 'login' if no token exists
@@ -67,7 +67,7 @@ export const CreateAdvertPage = () => {
 
     try {
       // added the 'token' as an argument on createAnimal
-      const animal = await createAnimal(token, {
+      const animal = await createAnimal(authFetch,{
         name: formData.name,
         species: formData.species,
         age: formData.age,

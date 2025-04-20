@@ -40,14 +40,14 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
         # Load the test configuration
         app.config.update(test_config)
     # Register blueprints
-    app.register_blueprint(animal_bp, url_prefix='/listings')
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(animal_bp, url_prefix='/api/listings')
+    app.register_blueprint(auth_bp, url_prefix='/api')
     
     # # Define routes
     
     # Other routes and configurations
     
-    @app.route('/assets/images/<int:id>')
+    @app.route('/api/assets/images/<int:id>')
     def get_profile_image(id):
         directory = f"{app.config['UPLOAD_FOLDER']}/{id}"
         if not os.path.isdir(directory):
@@ -122,7 +122,7 @@ app.cli.add_command(seed_db_command)
 
 
 # This function adds a new user to the database
-@app.route('/sign-up', methods=['POST'])
+@app.route('/api/sign-up', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def signup():
     with app.app_context():
@@ -168,7 +168,7 @@ def signup():
                             secure=False, # set to True in Prod
                             samesite='Lax',
                             max_age=604800,
-                            path='/'
+                            path='/',
                             )
         return response, 201
 
