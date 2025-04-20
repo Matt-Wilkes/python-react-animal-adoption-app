@@ -44,14 +44,15 @@ class AuthRepository:
     
     def get_access_token(self, refresh_token):
         if not refresh_token:
+            print("No refresh token provided in request")
             return jsonify({"error": "No refresh_token provided"}), 401
         try:
-            decoded = decode_token(refresh_token)
-
-            if decoded.get('token_type') != 'refresh':
-                # print(f"Invalid token type: {decoded.get('token_type')}")
+            decoded = decode_token(refresh_token, token_type='refresh')
+            
+            if decoded.claims.get('token_type') != 'refresh':
+                print(f"Invalid token type: {decoded.claims.get('token_type')}")
                 return jsonify({"error":"Invalid token type"}), 401
-            user_email = decoded.get('sub')
+            user_email = decoded.claims.get('sub')
             
             user = self.db.session.scalar(select(User).filter_by(email=user_email))
             

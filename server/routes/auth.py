@@ -18,12 +18,14 @@ secret = os.getenv('SECRET_KEY')
 access_claims_registry = JWTClaimsRegistry(
     iss={"essential": True, "value": "pawsforacause"},
     exp={"essential": True, "validate": True, "leeway": 60},
+    iat={"essential": True, "validate": True, "leeway": 300},
     token_type={"essential": True, "value": "access"}
 )
 
 refresh_claims_registry = JWTClaimsRegistry(
     iss={"essential": True, "value": "pawsforacause"},
     exp={"essential": True, "validate": True, "leeway": 60},
+    iat={"essential": True, "validate": True, "leeway": 300},
     token_type={"essential": True, "value": "refresh"}
 )
 
@@ -56,7 +58,7 @@ def decode_token(token, token_type='access'):
         token_obj = jwt.decode(token, public_jwk)
         claims = token_obj.claims
 
-        if token_type == 'access':
+        if token_type == "access":
             access_claims_registry.validate(claims)
         elif token_type == 'refresh':
             refresh_claims_registry.validate(claims)

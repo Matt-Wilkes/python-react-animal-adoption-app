@@ -27,7 +27,6 @@ def logout():
 def refresh_token():
     refresh_token = request.cookies.get('refresh_token')
     response, status_code = auth_repository.get_access_token(refresh_token)
-    print(f"Refresh token response status: {status_code}")
     return response, status_code
     
 @auth_bp.route('/protected', methods=['GET'])

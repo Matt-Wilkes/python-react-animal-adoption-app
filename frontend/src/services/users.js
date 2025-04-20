@@ -9,7 +9,7 @@ export const getUsers = async () => {
     },
   };
 
-  const response = await fetch(`${BACKEND_URL}/users`, requestOptions);
+  const response = await fetch(`/api/users`, requestOptions);
   console.log(response.status);
   if (response.status !== 200) {
     throw new Error("Unable to fetch users");
@@ -25,16 +25,16 @@ export const getUserById = async (email, password) => {
     headers: {
       // Authorization: `Bearer ${token}`,
       email: email,
-      password: password
+      password: password,
     },
   };
 
-  const response = await fetch(`${BACKEND_URL}/login`, requestOptions);
+  const response = await fetch(`/api/login`, requestOptions);
   if (response.status !== 200) {
     if (response.status == 401)
-        throw new Error("Username or Password is incorrect");
+      throw new Error("Username or Password is incorrect");
     else {
-        throw new Error("Unable to fetch user");
+      throw new Error("Unable to fetch user");
     }
   }
 

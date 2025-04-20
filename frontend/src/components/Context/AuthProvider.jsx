@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
     // if there isn't a token, return true
     if (!token) return true
     try {
-    // if there is a token, decode the token
+    // if there is a token, decode the token and check whether it has expired (30 seconds or less left)
       const decoded = jwtDecode(token);
       return decoded.exp * 1000 < Date.now() - 30000;
     } catch (error) {
@@ -140,7 +140,8 @@ const authFetch = async(url, options = {}) => {
   // if the token can't be refreshed, get a new token
   if (isTokenExpired(token)) {
     console.log("Token expired, attempting refresh before fetch");
-    const refreshed = handleRefreshToken();
+    // refresh the token (handleRefresh token will setToken)
+    await handleRefreshToken();
    
   }
   // make the request using the current token
@@ -152,15 +153,21 @@ const authFetch = async(url, options = {}) => {
       },
     };
   try {
+    // fetch url passed in, with options passed in AND addition of token
     const response = await fetch(url, authOptions);
 
   if (response.status === 401) {
     console.log("Receved 401 from fetch, attempting token refresh");
-    const refreshed = handleRefreshToken();
+    // attempt to refresh the token if there was an issue (401)
+    const refreshed = await handleRefreshToken();
 
+    // if refreshed is True - update the authHeaders with token
     if (refreshed) {
       console.log("token refreshed after 401, retrying fetch");
-      authOptions.headers.Authorization = `Bearer ${data.token}`;
+      // where am I getting data? data.token
+      console.log('data.token:', token)
+      console.log('refreshed token from state:', token)
+      authOptions.headers.Authorization = `Bearer ${token}`;
       return fetch(url, authOptions);
     } else {
       console.log("Token refresh failed after 401")
@@ -169,7 +176,7 @@ const authFetch = async(url, options = {}) => {
   }
   return response;
   } catch (error) {
-    console.error("Auth fethc error:", error)
+    console.error("Auth fetch error:", error)
     throw error;
 }
   

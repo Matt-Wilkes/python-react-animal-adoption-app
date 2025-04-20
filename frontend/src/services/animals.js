@@ -1,46 +1,43 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 
 export const getAnimals = async () => {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        // Authorization: `Bearer ${token}`,
-      },
-    };
-    try {
-      const response = await fetch(`${BACKEND_URL}/listings`, requestOptions);
-      if (response.status !== 200) {
-        throw new Error("Unable to fetch animals");
-      }
-      const data = await response.json();
-      return data || [];
-    } catch (error) {
-      console.error('Error:', error);
-      return [];
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      // Authorization: `Bearer ${token}`,
+    },
+  };
+  try {
+    const response = await fetch(`/api/listings`, requestOptions);
+    if (response.status !== 200) {
+      throw new Error("Unable to fetch animals");
     }
+    const data = await response.json();
+    return data || [];
+  } catch (error) {
+    console.error("Error:", error);
+    return [];
+  }
 };
 
-export const createAnimal = async (token, animal) => {
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(animal),
-  };
-  console.log(requestOptions)
+export const createAnimal = async (authFetch, animal) => {
   try {
-    console.log(`Making request to: ${BACKEND_URL}/listings`);
-    const response = await fetch(`${BACKEND_URL}/listings`, requestOptions);
+    console.log(`Making request to: /api/listings`);
+    const response = await authFetch(`/api/listings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(animal),
+    });
     if (!response.ok) {
       throw new Error("Error creating post");
     }
     const data = await response.json();
     return {
       status: response.status,
-      message: 'Successfully created animal profile',
-      data:data,
+      message: "Successfully created animal profile",
+      data: data,
     };
   } catch (error) {
     console.error("Fetch error:", error);
@@ -56,15 +53,17 @@ export const getSingleAnimal = async (id) => {
     },
   };
   try {
-    const response = await fetch(`${BACKEND_URL}/listings/${id}`, requestOptions);
+    const response = await fetch(
+      `/api/listings/${id}`,
+      requestOptions
+    );
     if (response.status !== 200) {
       throw new Error("Unable to fetch this animal");
     }
     const data = await response.json();
-    return data; 
-
+    return data;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 };
 
@@ -73,33 +72,35 @@ export const getProfileImage = async (id) => {
     method: "GET",
   };
   try {
-    const response = await fetch(`${BACKEND_URL}/assets/images/${id}`, requestOptions);
-    if(!response.ok) {
-      const errorText = await response.text()
+    const response = await fetch(
+      `/api/assets/images/${id}`,
+      requestOptions
+    );
+    if (!response.ok) {
+      const errorText = await response.text();
 
       if (response.status == 404) {
-        throw new Error(errorText)
+        throw new Error(errorText);
       } else {
-        throw new Error("Unable to fetch profile image")
+        throw new Error("Unable to fetch profile image");
       }
     }
-    
+
     const imageBlob = await response.blob();
 
     const imageUrl = URL.createObjectURL(imageBlob);
     return imageUrl;
-   
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 };
 
 // /**
 //  * This function allows a user to edit an existing animal listing
 //  * @param token (authentication),
-//  * @param animalID of animal to be edited, 
+//  * @param animalID of animal to be edited,
 //  * @param updatedAnimalData - new data to be written in database
-//  * Makes a request to backend URL for PUT request 
+//  * Makes a request to backend URL for PUT request
 //  * Returns success message, response status, and added data
 //  */
 export const editAnimal = async (token, animalId, updatedAnimalData) => {
@@ -113,8 +114,11 @@ export const editAnimal = async (token, animalId, updatedAnimalData) => {
   };
 
   try {
-    console.log(`Making request to: ${BACKEND_URL}/listings/${animalId}`);
-    const response = await fetch(`${BACKEND_URL}/listings/${animalId}`, requestOptions);
+    console.log(`Making request to: /api/listings/${animalId}`);
+    const response = await fetch(
+      `/api/listings/${animalId}`,
+      requestOptions
+    );
 
     if (!response.ok) {
       throw new Error("Error updating animal profile");
@@ -123,7 +127,7 @@ export const editAnimal = async (token, animalId, updatedAnimalData) => {
     const data = await response.json();
     return {
       status: response.status,
-      message: 'Successfully updated animal profile',
+      message: "Successfully updated animal profile",
       data: data,
     };
   } catch (error) {
@@ -132,8 +136,8 @@ export const editAnimal = async (token, animalId, updatedAnimalData) => {
   }
 };
 
-// This function changes the isActive state to be set to False 
-// Makes a PUT request to change isActive field in db to 'false' 
+// This function changes the isActive state to be set to False
+// Makes a PUT request to change isActive field in db to 'false'
 
 export const updateAnimalActiveStatus = async (token, animalId, isActive) => {
   const requestOptions = {
@@ -146,7 +150,10 @@ export const updateAnimalActiveStatus = async (token, animalId, isActive) => {
   };
 
   try {
-    const response = await fetch(`${BACKEND_URL}/listings/${animalId}/change_isactive`, requestOptions);
+    const response = await fetch(
+      `/api/listings/${animalId}/change_isactive`,
+      requestOptions
+    );
 
     if (!response.ok) {
       throw new Error("Error updating animal status");
@@ -158,16 +165,4 @@ export const updateAnimalActiveStatus = async (token, animalId, isActive) => {
     console.error("Fetch error:", error);
     throw error;
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
+};
