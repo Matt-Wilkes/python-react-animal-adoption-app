@@ -197,27 +197,27 @@ animal9 = Animal(
 ###############################
 
 user1 = User(
-    email = "reza@jugon.com",
+    email = "reza@example.com",
     password = "$2b$12$j1Jfgt6YnqBRF.4Npxlp9eVBPBgh/2HCdHHfMCcmsfmVIh98mM86O",
     first_name = "reza",
-    last_name = "jugon",
+    last_name = "example",
     shelter = shelter1
 )
 
 user2 = User(
-    email = "marya@shariq.com",
-    password = "password1",
+    email = "marya@example.com",
+    password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "Marya",
-    last_name = "Shariq",
+    last_name = "example",
     shelter = shelter2
 )
 
 
 user3 = User(
-    email = "matt@wilkes.com",
-    password = "password1",
+    email = "matt@example.com",
+    password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "Matt",
-    last_name = "Wilkes",
+    last_name = "example",
     shelter = shelter2
 )
 
