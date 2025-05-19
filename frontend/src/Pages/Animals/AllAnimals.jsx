@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { getAnimals } from "../../services/animals";
 import AnimalCard from "../../components/AnimalCard/animalcard";
+import { Box, Container } from "@mui/material";
 
 // This component fetches all the animals from the database and displays them in a card format.
 const AllAnimals = () => {
@@ -31,14 +32,21 @@ const AllAnimals = () => {
 
   return (
     <>
-      <h2>Can you give one of us a good home?</h2>
+      <h2>Animals available for adoption</h2>
+      <Container sx={{
+        height:"100vh",
+        overflow: 'auto'
+      }}>
       {animalsState.length > 0 ? (
-        <div
-          style={{
+        <Box
+          sx={{
             display: "flex",
             flexWrap: "wrap",
             justifyContent: "center",
-            gap: "20px", 
+            gap: {
+              xs: 1,
+              md: 4
+            } 
           }}
         >
           {animalsState.map((animal) => {
@@ -46,11 +54,14 @@ const AllAnimals = () => {
             {/* const image = await getProfileImage(id) */}
             {/* console.log ("Image from DB: " + image); */}
             return (
-              <div
+              <Box
                 key={id} 
-                style={{
-                  flex: "1 1 calc(33.333% - 20px)", 
-                  maxWidth: "calc(33.333% - 20px)",
+                sx={{
+                  minWidth:"360px",
+                  width: {
+                    xs: '100%',
+                    md: '30%'
+                  },
                 }}
               >
                 <AnimalCard
@@ -64,13 +75,16 @@ const AllAnimals = () => {
                   linkUrl={`/animals/${id}`} 
                   shelter_id={shelter_id}
                               />
-              </div>
+              </Box>
             );
           })}
-        </div>
+        </Box>
       ) : (
-        <p>No animals available at the moment.</p>
+        <h2>No animals available at the moment.</h2>
       )}
+      
+
+      </Container>
     </>
   );
 };
