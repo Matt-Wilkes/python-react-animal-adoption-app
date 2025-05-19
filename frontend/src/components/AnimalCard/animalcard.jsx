@@ -40,17 +40,16 @@ const AnimalCard = ({
 
   return (
     <Card
-      sx={{ maxWidth: 380, borderRadius: 2 }}
+      sx={{ width: '100%', borderRadius: 2 }}
       style={{
-        margin: "2em",
-        overflow: "hidden",
-        boxShadow: `0 4px 8px rgba(0, 0, 0, 0.2)`,
+        overflow: "auto",
+        // boxShadow: `0 4px 8px rgba(0, 0, 0, 0.2)`,
         border: `1px solid #679289`,
       }}
     >
       <Link to={linkUrl} style={{ textDecoration: "none", color: "inherit" }}>
         <CardMedia
-          sx={{ height: 265, width: "100%", objectFit: "cover" }}
+          sx={{ height: 265, width: "auto", objectFit: "cover" }}
           image={profileImage}
         />
       </Link>

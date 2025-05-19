@@ -105,16 +105,17 @@ if (!animalData) {
 
   return (
     <Card
+    square={true}
       sx={{
         display:'flex', 
         flexDirection:'column', 
         width: {
           xs: '100%',
-          sm: '80%',
+          md: '80%',
         },
         margin: "auto",
         height: "90vh",
-        mt: 10,
+        // mt: '5vh',
       }}
     >
       <CardMedia
@@ -145,8 +146,10 @@ if (!animalData) {
         </Typography>
         <Box sx={{ mt: 4, width:'100%'}}>
           <List sx={{display: 'grid', gridTemplateColumns: {
-            xs: 'repeat(auto-fit, minmax(200px,1fr))',
-            md: 'repeat(3, 1fr)'
+            xs: 'repeat(auto-fit, minmax(300px,1fr))',
+            md: 'repeat(2, 1fr)',
+            lg: 'repeat(3, 1fr)',
+
           },
             gap: 2
             }}
