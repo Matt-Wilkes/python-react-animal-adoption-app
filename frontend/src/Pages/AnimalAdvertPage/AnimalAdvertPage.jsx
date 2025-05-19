@@ -33,7 +33,6 @@ export const AnimalAdvertPage = () => {
     const fetchAnimalData = async () => {
       try {
         const data = await getSingleAnimal(id);
-        // console.log("Fetched animal data:", data); 
         const image = await getProfileImage(id)
         setAnimalData(data);
         setFormData(data)
@@ -60,9 +59,6 @@ export const AnimalAdvertPage = () => {
       </Typography>
     );
   }
-
-// Debugging line to check if data is undefined, null, or empty
-// console.log("Current animalData state:", animalData);
   
 if (!animalData) {
     return (
@@ -76,7 +72,6 @@ if (!animalData) {
     );
   }
 
-  // THIS SECTION IS WHERE ALL THE EVENT HANDLERS ARE - MS
 
   const handleEditClick = () => {
     setisEditMode(true);
@@ -106,25 +101,37 @@ if (!animalData) {
     alert('This animal profile has now been hidden from all animal listings')
     navigate('/animals')
   };
-  // console.log("Current isActive state:", isActive);
-  
+
 
   return (
     <Card
       sx={{
-        width: "50vh",
-        margin: "0 auto",
-        padding: "2em",
+        display:'flex', 
+        flexDirection:'column', 
+        width: {
+          xs: '100%',
+          sm: '80%',
+        },
+        margin: "auto",
+        height: "90vh",
         mt: 10,
       }}
     >
       <CardMedia
         component="img"
-        height="265"
+        sx={{
+          maxHeight:'500px',
+          objectFit:{
+            xs: 'cover',
+          },
+          width:'auto'
+        }}
         image={profileImage}
         alt={`${animalData.name}'s image`}
       />
-      <CardContent>
+      <CardContent sx={{
+        overflow:'auto',
+      }}>
         {!isEditMode ? (
           <>
         <Typography variant="h4" component="div">
@@ -136,8 +143,14 @@ if (!animalData) {
         <Typography variant="body1" sx={{ mb: 2 }}>
           {animalData.bio}
         </Typography>
-        <Box sx={{ mt: 4 }}>
-          <List>
+        <Box sx={{ mt: 4, width:'100%'}}>
+          <List sx={{display: 'grid', gridTemplateColumns: {
+            xs: 'repeat(auto-fit, minmax(200px,1fr))',
+            md: 'repeat(3, 1fr)'
+          },
+            gap: 2
+            }}
+            >
             <ListItem>
               <ListItemText primary="Species" secondary={animalData.species} />
             </ListItem>
@@ -162,18 +175,10 @@ if (!animalData) {
                 secondary={animalData.livesWithChildren ? "Yes" : "No"}
               />
             </ListItem>
-           
+           {/* This should be a button */}
             <ListItem>
               <ListItemText 
-                primary="Email" 
-                // secondary={
-                //   // href may restart the app
-                //   // <a 
-                //   //   href={`mailto:${animalData.shelter_id.email}?subject=Inquiry%20about%20adopting%20${encodeURIComponent(animalData.name)}&body=Hi,%20I'm%20interested%20in%20adopting%20${encodeURIComponent(animalData.name)}.%20Could%20I%20get%20some%20more%20info?`}
-                //   // >
-                //   //   {animalData.shelter_id.email}
-                //   // </a>
-                // } 
+                primary="Email"
               />
             </ListItem>
           </List>
@@ -181,7 +186,7 @@ if (!animalData) {
 
         {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
         {token && (animalData.shelter_id == 1) && (
-          <Box sx={{ mt: 4, textAlign: "center" }}>
+          <Box sx={{ mt: 4, textAlign: "center", display:'flex', justifyContent:'center', gap: 2}}>
             <Button variant="contained" color="primary" onClick={handleEditClick}>
               Edit {animalData.name}'s profile
             </Button>
