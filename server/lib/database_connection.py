@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.engine import URL
 from lib.models.base import Base
@@ -11,11 +12,8 @@ import os
 from dotenv import load_dotenv
 
 
-
-# print(env_path)
-# load_dotenv(dotenv_path=env_path / '.env')
-
 db = SQLAlchemy(model_class=Base)
+migrate = Migrate()
 class DatabaseConnection:
     
     def __init__(self, test_mode=False):
@@ -87,6 +85,8 @@ class DatabaseConnection:
 
         # intialise SQLAlchemy with app
         db.init_app(app)
+        
+        migrate.init_app(app, db)
         
         self._set_keys(app)
         
