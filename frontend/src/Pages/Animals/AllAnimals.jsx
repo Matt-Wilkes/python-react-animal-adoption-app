@@ -13,8 +13,6 @@ const AllAnimals = () => {
   const fetchAnimals = () => {
     getAnimals()
       .then((data) => {
-        console.log("I have data");
-
         if (data && Array.isArray(data)) {
           setAnimalsState(data);
         } else {
@@ -51,7 +49,8 @@ const AllAnimals = () => {
         >
           {animalsState.map((animal) => {
             const { id, name, breed, age, location, shelter_id } = animal;
-            {/* const image = await getProfileImage(id) */}
+            const profileImageFilename = `profile.png`
+            {/* const profileImage = animal.profileImage */}
             {/* console.log ("Image from DB: " + image); */}
             return (
               <Box
@@ -66,7 +65,7 @@ const AllAnimals = () => {
               >
                 <AnimalCard
                   id={id}
-                  // image={getProfileImage(id)}
+                  profileImageFilename={profileImageFilename}
                   name={name}
                   age={age}
                   breed={breed}
@@ -74,7 +73,7 @@ const AllAnimals = () => {
                   button1Text={`Meet ${name}`}
                   linkUrl={`/animals/${id}`} 
                   shelter_id={shelter_id}
-                              />
+                />
               </Box>
             );
           })}

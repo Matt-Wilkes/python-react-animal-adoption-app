@@ -7,7 +7,8 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
-import { getProfileImage } from "../../services/animals";
+import { buildImageUrl } from "../../utils/gcpUtils";
+// import { getProfileImage } from "../../services/animals";
 
 const AnimalCard = ({
   id,
@@ -17,19 +18,36 @@ const AnimalCard = ({
   location,
   button1Text,
   linkUrl,
-  shelter_id
+  shelter_id,
+  profileImageFilename
 }) => {
-  const [profileImage, setProfileImage] = useState("../../public/profile_placeholder.png")
+  const [profileImage, setProfileImage] = useState("/profile_placeholder.png")
 
+  // useEffect( () => {
+  //   const fetchProfileImage = async () => {
+  //     try {
+  //       const image = await getProfileImage(id)
+  //       if (image) {
+  //         setProfileImage(image)
+  //       }
+  //       else {
+  //         setProfileImage("../../public/profile_placeholder.png")
+  //       }
+  //     } catch (error) {
+  //       console.error('error', error)
+  //     }
+  //   }
+  //   fetchProfileImage()
+  // }, [])
   useEffect( () => {
     const fetchProfileImage = async () => {
       try {
-        const image = await getProfileImage(id)
-        if (image) {
-          setProfileImage(image)
+        const profileImageUrl = buildImageUrl(id, profileImageFilename)
+        if (profileImageUrl) {
+          setProfileImage(profileImageUrl)
         }
         else {
-          setProfileImage("../../public/profile_placeholder.png")
+          setProfileImage("/profile_placeholder.png")
         }
       } catch (error) {
         console.error('error', error)
@@ -102,7 +120,7 @@ AnimalCard.propTypes = {
   age: PropTypes.number.isRequired,
   breed: PropTypes.string.isRequired,
   location: PropTypes.string.isRequired,
-  image: PropTypes.string,
+  profileImage: PropTypes.string,
   button1Text: PropTypes.string,
   linkUrl: PropTypes.string.isRequired,
   shelter_id: PropTypes.number.isRequired,

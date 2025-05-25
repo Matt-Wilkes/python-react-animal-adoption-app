@@ -11,15 +11,16 @@ import {
   TextField,
   CardMedia
 } from "@mui/material";
-import { editAnimal, getSingleAnimal, getProfileImage, updateAnimalActiveStatus } from "../../services/animals";
+import { editAnimal, getSingleAnimal, updateAnimalActiveStatus } from "../../services/animals";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "../../components/Context/AuthProvider"
+import { buildImageUrl } from "../../utils/gcpUtils";
 
 export const AnimalAdvertPage = () => {
   const [animalData, setAnimalData] = useState(null);
   const [formData, setFormData] = useState({});
-  const [profileImage, setProfileImage] = useState("../../public/profile_placeholder.png")
+  const [profileImage, setProfileImage] = useState("/profile_placeholder.png")
   const [error, setError] = useState(null);
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
@@ -33,11 +34,13 @@ export const AnimalAdvertPage = () => {
     const fetchAnimalData = async () => {
       try {
         const data = await getSingleAnimal(id);
-        const image = await getProfileImage(id)
+        const profileImageFilename = 'profile.png'
         setAnimalData(data);
         setFormData(data)
         if (data.images != 0) {
-          setProfileImage(image)
+          const profileImageUrl = buildImageUrl(data.id, profileImageFilename)
+          setProfileImage(profileImageUrl)
+          // console.log(profileImageUrl)
         }
       } catch (error) {
         console.error("Failed to fetch animal data:", error);
