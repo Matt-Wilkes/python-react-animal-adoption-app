@@ -81,7 +81,8 @@ class DatabaseConnection:
             
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-        app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
+        # app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
+        app.config['GOOGLE_APPLICATION_CREDENTIALS'] = Path(app.instance_path) / 'storage-uploader-key.json'
         # app.config['SQLALCHEMY_ECHO'] = True
 
         # intialise SQLAlchemy with app

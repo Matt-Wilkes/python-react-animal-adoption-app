@@ -67,33 +67,33 @@ export const getSingleAnimal = async (id) => {
   }
 };
 
-export const getProfileImage = async (id) => {
-  const requestOptions = {
-    method: "GET",
-  };
-  try {
-    const response = await fetch(
-      `/api/assets/images/${id}`,
-      requestOptions
-    );
-    if (!response.ok) {
-      const errorText = await response.text();
+// export const getProfileImage = async (id) => {
+//   const requestOptions = {
+//     method: "GET",
+//   };
+//   try {
+//     const response = await fetch(
+//       `/api/assets/images/${id}`,
+//       requestOptions
+//     );
+//     if (!response.ok) {
+//       const errorText = await response.text();
 
-      if (response.status == 404) {
-        throw new Error(errorText);
-      } else {
-        throw new Error("Unable to fetch profile image");
-      }
-    }
+//       if (response.status == 404) {
+//         throw new Error(errorText);
+//       } else {
+//         throw new Error("Unable to fetch profile image");
+//       }
+//     }
 
-    const imageBlob = await response.blob();
+//     const imageBlob = await response.blob();
 
-    const imageUrl = URL.createObjectURL(imageBlob);
-    return imageUrl;
-  } catch (error) {
-    console.error("Error:", error);
-  }
-};
+//     const imageUrl = URL.createObjectURL(imageBlob);
+//     return imageUrl;
+//   } catch (error) {
+//     console.error("Error:", error);
+//   }
+// };
 
 // /**
 //  * This function allows a user to edit an existing animal listing
