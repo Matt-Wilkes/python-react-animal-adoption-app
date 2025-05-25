@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -19,9 +19,9 @@ const AnimalCard = ({
   button1Text,
   linkUrl,
   shelter_id,
-  profileImageFilename
+  profileImageId
 }) => {
-  const [profileImage, setProfileImage] = useState("/profile_placeholder.png")
+  const [profileImage, setProfileImage] = useState("/profile_placeholder.png");
 
   // useEffect( () => {
   //   const fetchProfileImage = async () => {
@@ -39,26 +39,25 @@ const AnimalCard = ({
   //   }
   //   fetchProfileImage()
   // }, [])
-  useEffect( () => {
+  useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const profileImageUrl = buildImageUrl(id, profileImageFilename)
+        const profileImageUrl = buildImageUrl(id, profileImageId);
         if (profileImageUrl) {
-          setProfileImage(profileImageUrl)
-        }
-        else {
-          setProfileImage("/profile_placeholder.png")
+          setProfileImage(profileImageUrl);
+        } else {
+          setProfileImage("/profile_placeholder.png");
         }
       } catch (error) {
-        console.error('error', error)
+        console.error("error", error);
       }
-    }
-    fetchProfileImage()
-  }, [])
+    };
+    fetchProfileImage();
+  }, []);
 
   return (
     <Card
-      sx={{ width: '100%', borderRadius: 2 }}
+      sx={{ width: "100%", borderRadius: 2 }}
       style={{
         overflow: "auto",
         // boxShadow: `0 4px 8px rgba(0, 0, 0, 0.2)`,
@@ -108,7 +107,7 @@ const AnimalCard = ({
           >
             {button1Text}
           </Button>
-          </Link>
+        </Link>
       </CardActions>
     </Card>
   );
@@ -120,7 +119,7 @@ AnimalCard.propTypes = {
   age: PropTypes.number.isRequired,
   breed: PropTypes.string.isRequired,
   location: PropTypes.string.isRequired,
-  profileImage: PropTypes.string,
+  profileImageId: PropTypes.string,
   button1Text: PropTypes.string,
   linkUrl: PropTypes.string.isRequired,
   shelter_id: PropTypes.number.isRequired,
