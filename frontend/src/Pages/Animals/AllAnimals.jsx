@@ -48,10 +48,7 @@ const AllAnimals = () => {
           }}
         >
           {animalsState.map((animal) => {
-            const { id, name, breed, age, location, shelter_id } = animal;
-            const profileImageId = `profile.png`
-            {/* const profileImage = animal.profileImage */}
-            {/* console.log ("Image from DB: " + image); */}
+            const { id, name, breed, age, profileImageId, location, shelter_id } = animal;
             return (
               <Box
                 key={id} 
