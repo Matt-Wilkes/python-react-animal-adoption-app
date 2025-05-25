@@ -49,7 +49,7 @@ const AllAnimals = () => {
         >
           {animalsState.map((animal) => {
             const { id, name, breed, age, location, shelter_id } = animal;
-            const profileImageFilename = `profile.png`
+            const profileImageId = `profile.png`
             {/* const profileImage = animal.profileImage */}
             {/* console.log ("Image from DB: " + image); */}
             return (
@@ -65,7 +65,7 @@ const AllAnimals = () => {
               >
                 <AnimalCard
                   id={id}
-                  profileImageFilename={profileImageFilename}
+                  profileImageId={profileImageId}
                   name={name}
                   age={age}
                   breed={breed}

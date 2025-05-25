@@ -34,11 +34,11 @@ export const AnimalAdvertPage = () => {
     const fetchAnimalData = async () => {
       try {
         const data = await getSingleAnimal(id);
-        const profileImageFilename = 'profile.png'
+        const profileImageId = 'profile.png'
         setAnimalData(data);
         setFormData(data)
         if (data.images != 0) {
-          const profileImageUrl = buildImageUrl(data.id, profileImageFilename)
+          const profileImageUrl = buildImageUrl(data.id, profileImageId)
           setProfileImage(profileImageUrl)
           // console.log(profileImageUrl)
         }
