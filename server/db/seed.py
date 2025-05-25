@@ -60,7 +60,7 @@ animal2 = Animal(
     neutered = False,
     lives_with_children = False,
     images = 1,
-    profileImageId = 'profile.jpg',
+    profileImageId = 'profile.png',
     isActive = True,
     shelter = shelter3
 )
@@ -136,7 +136,7 @@ animal6 = Animal(
     neutered = False,
     lives_with_children = False,
     images = 1,
-    profileImageId = 'profile.png',
+    profileImageId = 'profile.jpeg',
     isActive = True,
     shelter = shelter2
 )
@@ -174,7 +174,7 @@ animal8 = Animal(
     neutered = False,
     lives_with_children = False,
     images = 1,
-    profileImageId = 'profile.jpeg',
+    profileImageId = 'profile.jpg',
     isActive = True,
     shelter = shelter1
 )
