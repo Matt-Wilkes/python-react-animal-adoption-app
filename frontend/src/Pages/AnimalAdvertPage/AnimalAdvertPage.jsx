@@ -126,8 +126,8 @@ export const AnimalAdvertPage = () => {
         sx={{
           maxHeight: '5rem',
           maxHeight: {
-            xs: "40rem",
-            ms: "50rem",
+            xs: "30rem",
+            // sm: "30rem",
           },
           objectFit: {
             xs: "cover",
@@ -168,8 +168,9 @@ export const AnimalAdvertPage = () => {
                   flex: {
                     xs: "1 1 100%",
                     md: "1 1 50%",
-                    lg: "1 1 25%",
+                    // lg: "1 1 25%",
                   },
+
                   // border: '2px solid purple',
                 },
               }}
@@ -205,9 +206,11 @@ export const AnimalAdvertPage = () => {
                 />
               </ListItem>
               {/* This should be a button */}
-              <ListItem>
-                <ListItemText primary="Email" />
-              </ListItem>
+              {/* <ListItem>
+                <ListItemText primary="Email" 
+                  secondary="Log in to email"
+                />
+              </ListItem> */}
             </List>
 
             {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
