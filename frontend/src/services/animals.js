@@ -103,19 +103,18 @@ export const getSingleAnimal = async (id) => {
 //  * Makes a request to backend URL for PUT request
 //  * Returns success message, response status, and added data
 //  */
-export const editAnimal = async (token, animalId, updatedAnimalData) => {
+export const editAnimal = async (authFetch, animalId, updatedAnimalData) => {
   const requestOptions = {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(updatedAnimalData),
   };
 
   try {
     console.log(`Making request to: /api/listings/${animalId}`);
-    const response = await fetch(
+    const response = await authFetch(
       `/api/listings/${animalId}`,
       requestOptions
     );
@@ -139,18 +138,16 @@ export const editAnimal = async (token, animalId, updatedAnimalData) => {
 // This function changes the isActive state to be set to False
 // Makes a PUT request to change isActive field in db to 'false'
 
-export const updateAnimalActiveStatus = async (token, animalId, isActive) => {
+export const updateAnimalActiveStatus = async (authFetch, animalId, isActive) => {
   const requestOptions = {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ isActive }),
   };
 
   try {
-    const response = await fetch(
+    const response = await authFetch(
       `/api/listings/${animalId}/change_isactive`,
       requestOptions
     );
