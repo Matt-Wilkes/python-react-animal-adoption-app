@@ -29,7 +29,7 @@ export const AnimalAdvertPage = () => {
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
   const { id } = useParams();
-  const { token } = useAuth();
+  const { authFetch, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export const AnimalAdvertPage = () => {
   const handleSaveChanges = async () => {
     try {
       const updatedAnimalData = { ...formData };
-      const response = await editAnimal(token, id, updatedAnimalData);
+      const response = await editAnimal(authFetch, id, updatedAnimalData);
       setAnimalData(response.data);
       setisEditMode(false);
     } catch (error) {
@@ -99,7 +99,7 @@ export const AnimalAdvertPage = () => {
 
   const handleRemoveClick = async () => {
     console.log("We are attempting to change the isActive state to false");
-    await updateAnimalActiveStatus(token, animalData.id, false);
+    await updateAnimalActiveStatus(authFetch, animalData.id, false);
     setisActive(false);
     alert("This animal profile has now been hidden from all animal listings");
     navigate("/animals");
@@ -214,7 +214,7 @@ export const AnimalAdvertPage = () => {
             </List>
 
             {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
-            {token && animalData.shelter_id == 1 && (
+            {isAuthenticated && animalData.shelter_id == 1 && (
               <Box
                 sx={{
                   mt: 4,
