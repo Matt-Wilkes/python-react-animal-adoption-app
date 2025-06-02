@@ -6,7 +6,6 @@ const GCP_CONFIG_PROD = {
 
 export const buildImageUrl = (id, filename) => {
     const imageUrl = `${GCP_CONFIG_PROD.baseUrl}/${GCP_CONFIG_PROD.bucketName}/${GCP_CONFIG_PROD.imageAssetsPath}/${id}/${filename}`
-    console.log(imageUrl)
     return imageUrl
 };
 
