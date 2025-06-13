@@ -23,7 +23,6 @@ import {InputFileUpload} from "../../components/MaterialComponents/InputFileUplo
 
 export const CreateAdvertPage = () => {
   const [message, setMessage] = useState("");
-  // const {isAuthenticated} = useAuth()
   const [formData, setFormData] = useState({
     name: "",
     species: "",
