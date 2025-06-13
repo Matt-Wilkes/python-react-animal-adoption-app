@@ -72,19 +72,18 @@ def validate_token(claims):
 
     
 def update_request_data(decoded_token):
-    # claims = decoded_token.claims
-    # if decoded_token.claims.get('id') is None:
-    #     print(f"Token missing user.id")
-    #     return jsonify({"message": "Token missing user.id"}), 401
-    # else:
-    #     user_id = decoded_token.claims.get('id')
-    #     print(f"user_id = {user_id}")
-    #     g.user_id = user_id
     
-    # if decoded_token.claims.get('shelter_id'):
-    #     shelter_id = decoded_token.claims.get('shelter_id')
-    #     g.shelter_id = shelter_id
-    pass
+    if decoded_token.claims.get('sub') is None:
+        raise ValueError("Token is missing sub")
+    else:
+        user_id = decoded_token.claims.get('sub')
+        g.user_id = user_id
+    
+    if decoded_token.claims.get('shelter_id'):
+        shelter_id = decoded_token.claims.get('shelter_id')
+        g.shelter_id = shelter_id
+    else:
+        print("User is not part of a shelter")
 
 def decode_token(token):
     public_jwk = current_app.config['JWT_PUBLIC_KEY']
@@ -124,6 +123,8 @@ def token_checker(f):
             print(f"token claims: {decoded_token.claims}")
             if validate_token(decoded_token.claims) == False:
                 raise Exception("Token claims aren't valid")
+            
+            update_request_data(decoded_token)
             
         except Exception as e:
             print(f"Error processing token claims: {str(e)}")
