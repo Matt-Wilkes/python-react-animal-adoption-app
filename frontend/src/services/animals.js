@@ -1,14 +1,8 @@
 
 
 export const getAnimals = async () => {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      // Authorization: `Bearer ${token}`,
-    },
-  };
   try {
-    const response = await fetch(`/api/listings`, requestOptions);
+    const response = await fetch(`/api/listings`, {method: "GET"});
     if (response.status !== 200) {
       throw new Error("Unable to fetch animals");
     }
@@ -19,6 +13,8 @@ export const getAnimals = async () => {
     return [];
   }
 };
+
+
 
 export const createAnimal = async (authFetch, animal) => {
   try {
@@ -46,17 +42,9 @@ export const createAnimal = async (authFetch, animal) => {
 };
 
 export const getSingleAnimal = async (id) => {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      // Authorization: `Bearer ${token}`,
-    },
-  };
+
   try {
-    const response = await fetch(
-      `/api/listings/${id}`,
-      requestOptions
-    );
+    const response = await fetch(`/api/listings/${id}`, {method: "GET"});
     if (response.status !== 200) {
       throw new Error("Unable to fetch this animal");
     }
@@ -114,10 +102,7 @@ export const editAnimal = async (authFetch, animalId, updatedAnimalData) => {
 
   try {
     console.log(`Making request to: /api/listings/${animalId}`);
-    const response = await authFetch(
-      `/api/listings/${animalId}`,
-      requestOptions
-    );
+    const response = await authFetch(`/api/listings/${animalId}`,requestOptions);
 
     if (!response.ok) {
       throw new Error("Error updating animal profile");
