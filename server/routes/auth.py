@@ -1,111 +1,133 @@
 
 from dotenv import load_dotenv
 import os
-from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import jsonify, request, current_app
 import time
-
 from joserfc.jwk import RSAKey
-from joserfc import jwt
+from joserfc import jwt, errors
 from joserfc.jwt import JWTClaimsRegistry
+from flask import g
 
 load_dotenv()
 
-secret = os.getenv('SECRET_KEY')
+# secret = os.getenv('SECRET_KEY')
 # current_app.config['SECRET_KEY']
 
-access_claims_registry = JWTClaimsRegistry(
-    iss={"essential": True, "value": "pawsforacause"},
-    exp={"essential": True, "validate": True, "leeway": 60},
-    iat={"essential": True, "validate": True, "leeway": 300},
-    token_type={"essential": True, "value": "access"}
-)
+class TokenClaimsRegistry(JWTClaimsRegistry):
+    def __init__(self, now = None, leeway = 0, **kwargs):
+        super().__init__(now, leeway, **kwargs)
+        
+    def validate(self, claims):
+        if claims.get('iss') != 'pawsforacause':
+            raise ValueError("Issuer isn't valid!")
+        return super().validate(claims)
 
-refresh_claims_registry = JWTClaimsRegistry(
-    iss={"essential": True, "value": "pawsforacause"},
-    exp={"essential": True, "validate": True, "leeway": 60},
-    iat={"essential": True, "validate": True, "leeway": 300},
-    token_type={"essential": True, "value": "refresh"}
-)
 
-# Encoding a JWT
-
-def generate_token(user_id, additional_claims=None, token_type='access', expiry=3600):
+def generate_token(user_id, additional_claims=None, token_type='access'):
     private_jwk = current_app.config['JWT_PRIVATE_KEY']
-    current_time = int(time.time()) - 60
+   
+    if token_type == 'access':
+        expiry = current_app.config['ACCESS_TOKEN_EXPIRY']
+    else:
+        expiry = current_app.config['REFRESH_TOKEN_EXPIRY']
+        
+    current_time = int(time.time())
+    expiry_time = expiry + int(time.time())
     
     header = {'alg': 'RS256'}
     
     claims = {
         "iss": "pawsforacause",
-        "sub": str(user_id),
+        "sub": int(user_id),
         "iat": current_time,
-        "exp": current_time + expiry,
+        "exp": expiry_time,
         "token_type": token_type
     }
     
     if additional_claims:
         claims.update(additional_claims)
     
+    print(f"Generating token with claims: {claims}") 
     token = jwt.encode(header, claims, private_jwk)
     return token
 
-def decode_token(token, token_type='access'):
+def validate_token(claims):
+    token_type = claims.get('token_type')
+    
+    if token_type == 'access':
+        token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
+    elif token_type == 'refresh':
+        token_leeway = current_app.config['REFRESH_TOKEN_EXPIRY']
+    else:
+        raise ValueError("token_type isn't valid")
+    
+    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
+    
+    print(f"About to validate {token_type} claims...")
+
+    token_claims_registry.validate(claims)
+    token_claims_registry.validate_iat(claims.get('iat'))
+    token_claims_registry.validate_exp(claims.get('exp'))
+
+    
+def update_request_data(decoded_token):
+    # claims = decoded_token.claims
+    # if decoded_token.claims.get('id') is None:
+    #     print(f"Token missing user.id")
+    #     return jsonify({"message": "Token missing user.id"}), 401
+    # else:
+    #     user_id = decoded_token.claims.get('id')
+    #     print(f"user_id = {user_id}")
+    #     g.user_id = user_id
+    
+    # if decoded_token.claims.get('shelter_id'):
+    #     shelter_id = decoded_token.claims.get('shelter_id')
+    #     g.shelter_id = shelter_id
+    pass
+
+def decode_token(token):
     public_jwk = current_app.config['JWT_PUBLIC_KEY']
     
     try:
-        token_obj = jwt.decode(token, public_jwk)
-        claims = token_obj.claims
-
-        if token_type == "access":
-            access_claims_registry.validate(claims)
-        elif token_type == 'refresh':
-            refresh_claims_registry.validate(claims)
-        else:
-            raise ValueError(f"Invalid token type: {token_type}")
-        return token_obj  # This is a dictionary containing the token's data
+        decoded_token = jwt.decode(token, public_jwk, algorithms=["RS256"])
+        return decoded_token  
+    
     except Exception as e:
-        # error_msg = str(e)
-        # Handle errors such as invalid signature, expired token, etc.
         print(f"Token decoding failed: {e}")
-        return None
-
+    
+# Function is passed as an argument to token_checker(f)
 def token_checker(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = None
-        auth_header = request.headers.get('Authorization')
+        # my ACCESS token I send in the header
+        # my REFRESH token is sent in the cookie
+        auth_header = request.headers.get('Authorization') 
+        
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({"message": "Token is missing!"}), 401
         else:
             token = auth_header.split(" ")[1]
             
-        if not token:
-            return jsonify({"message": "Token is missing"}), 401
-            
         try:
-            valid_token = decode_token(token, token_type='access')
+            decoded_token = decode_token(token)
+            print(f"decoded token: {decoded_token}")
+            if not decoded_token or decoded_token == None:
+                raise Exception("Token decoding failed")
             
-            if not valid_token:
-                return jsonify({"message": "Invalid or expired token!"}), 401
+            token_type = decoded_token.claims.get('token_type')
+            print(f"decoded token type: {token_type}")
+            if token_type != 'access':
+                raise Exception("Invalid token type")
             
-            if valid_token.claims.get("token_type") != "access":
-                return jsonify({"message": "Invalid token type!"}), 401
-            
-            user_id = valid_token.claims.get("id")
-            
-            if valid_token.claims.get("shelter_id"):
-                request.shelter_id = valid_token.claims.get("shelter_id")
-            
-            if user_id is None:
-                return jsonify({"message": "Token missing user_id"}), 401
-            
-            request.user_id = user_id
+            print(f"token claims: {decoded_token.claims}")
+            if validate_token(decoded_token.claims) == False:
+                raise Exception("Token claims aren't valid")
             
         except Exception as e:
             print(f"Error processing token claims: {str(e)}")
-            return jsonify({"message": "Error processing authentication data"}), 401
+            return jsonify({"message":  f"{str(e)}"}), 401
 
         return f(*args, **kwargs)
 

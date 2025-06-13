@@ -82,6 +82,10 @@ class DatabaseConnection:
         # app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
         app.config['GOOGLE_APPLICATION_CREDENTIALS'] = Path(app.instance_path) / 'storage-uploader-key.json'
         # app.config['SQLALCHEMY_ECHO'] = True
+        app.config['ACCESS_TOKEN_EXPIRY'] = 900 # 15 minutes
+        app.config['REFRESH_TOKEN_EXPIRY'] = 604800 # 7 days
+        app.config['ACCESS_TOKEN_LEEWAY'] = 60 # 1 minute
+        app.config['REFRESH_TOKEN_LEEWAY'] = 300 # 5 minutes
 
         # intialise SQLAlchemy with app
         db.init_app(app)

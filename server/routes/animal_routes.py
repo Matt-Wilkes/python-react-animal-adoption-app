@@ -1,5 +1,5 @@
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from flask_cors import CORS
 
 from lib.models.animal_repository import AnimalRepository
@@ -38,7 +38,7 @@ def display_one_animal(id):
 @token_checker # Added this decorator to check for token. 
 def create_new_animal():
     data = request.get_json()
-    data['shelter_id']=request.shelter_id
+    data['shelter_id']=g.shelter_id
     animal = animal_repo.create_new_animal(data)
     return jsonify(animal.to_dict()), 201
    
@@ -75,6 +75,7 @@ def create_new_animal():
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     data = request.get_json()
+    print(f"animal data: ${data}")
     animal = animal_repo.update_animal(data)
     if not animal:
         return jsonify({"message": "Animal not found"}), 404

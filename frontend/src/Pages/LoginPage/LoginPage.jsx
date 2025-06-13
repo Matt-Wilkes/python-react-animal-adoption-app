@@ -13,10 +13,10 @@ export const LoginPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
+    if (isAuthenticated) {
       navigate("/animals")
     } 
-  }, [token]);
+  }, [isAuthenticated]);
 
 
   const handleEmailChange = (event) => {
