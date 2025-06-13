@@ -40,7 +40,6 @@ class AnimalRepository:
         
     def update_animal(self, data):
         with self.db.session.begin():
-            # values = str(data)
             stmt = (update(Animal).where(Animal.id == data["id"]).values(data).returning(Animal))
             updated_animal = self.db.session.scalar(stmt)
             print(updated_animal)
