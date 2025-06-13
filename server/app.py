@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
 from sqlalchemy import select
 from db.seed import Animal, User, users, animals
-from routes.auth import generate_token, decode_token, token_checker
+from routes.auth import generate_token
 from flask_bcrypt import Bcrypt 
 from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
@@ -40,8 +40,8 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
         # Load the test configuration
         app.config.update(test_config)
     # Register blueprints
-    app.register_blueprint(animal_bp, url_prefix='/api/listings')
-    app.register_blueprint(auth_bp, url_prefix='/api')
+    app.register_blueprint(animal_bp, url_prefix='/listings')
+    app.register_blueprint(auth_bp)
     
     # # Define routes
     
@@ -96,6 +96,14 @@ def seed_db_command():
         db.session.add_all(users)
         click.echo("Database has been seeded")
 
+@click.command()
+@with_appcontext
+def current_time():
+    """Show current UTC unix timestamp"""
+    timestamp = int(time.time())
+    click.echo(f"UTC Unix timestamp: {timestamp}")
+
+app.cli.add_command(current_time)
 app.cli.add_command(init_db_command)
 app.cli.add_command(seed_db_command)
 

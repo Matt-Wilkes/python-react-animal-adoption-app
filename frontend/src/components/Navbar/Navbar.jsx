@@ -17,9 +17,18 @@ import { AuthProvider, useAuth } from "../Context/AuthProvider";
 const Navbar = () => {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
-  const { token, logout, isAuthenticated } = useAuth()
+  const { logout, isAuthenticated } = useAuth()
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+
+  useEffect(() => {
+    setLoggedIn(isAuthenticated);
+    console.log('isAuthenticated = ', isAuthenticated)
+  }, [isAuthenticated]);
+
+  const handleLogoutClick = async () => {
+    await logout()
+  };
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -37,19 +46,6 @@ const Navbar = () => {
     setAnchorElUser(null);
   };
 
-  useEffect(() => {
-    setLoggedIn(!!isAuthenticated);
-  }, [token]);
-
-  const handleLogoutClick = async () => {
-    await logout()
-    // if (token) {
-    //   // localStorage.removeItem("token");
-    //   setToken(null);
-    // } 
-    // setLoggedIn(false);
-    // navigate("/login");
-  };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: '#003554' }}>
@@ -99,12 +95,12 @@ const Navbar = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {/* <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
+              <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Home</Typography>
               </MenuItem>
               <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Animals</Typography>
-              </MenuItem> */}
+              </MenuItem>
               {!loggedIn && (
                 <Menu>
                   <MenuItem component={Link} to="/sign-up" onClick={handleCloseNavMenu}>

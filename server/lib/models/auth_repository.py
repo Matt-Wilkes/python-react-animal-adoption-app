@@ -5,13 +5,13 @@ from sqlalchemy import select
 from lib.models.user import User
 from routes.auth import decode_token, generate_token
 
-
 class AuthRepository:
     def __init__(self, db_instance: SQLAlchemy):
         self.db = db_instance
         
     def get_token(self, data):
         from app import bcrypt
+        
         req_email = data.get('email')
         req_password = data.get('password')
         user = self.db.session.scalar(select(User).filter_by(email=req_email))
@@ -22,9 +22,11 @@ class AuthRepository:
             "id": user.id,
             "shelter_id": user.shelter_id
             }
-            access_token = generate_token(req_email, token_data, token_type='access', expiry=900) 
-            refresh_token = generate_token(req_email, {"token_type": "refresh"}, token_type='refresh', expiry=604800) 
+            access_token = generate_token(user.id, additional_claims=token_data, token_type='access') 
+            refresh_token = generate_token(user.id, token_type='refresh') 
+            # 604800 = 1
             response = jsonify({"token": access_token,
+                                # Why not just store this in state?
                             "user": {
                                 "id": user.id,
                                 "shelter_id": user.shelter_id
@@ -47,14 +49,13 @@ class AuthRepository:
             print("No refresh token provided in request")
             return jsonify({"error": "No refresh_token provided"}), 401
         try:
-            decoded = decode_token(refresh_token, token_type='refresh')
+            # This should be validated before - decode_token throws NONE if there's an issue
+            decoded = decode_token(refresh_token)
+            print(f"decoded refresh = ${decoded} ")
             
-            if decoded.claims.get('token_type') != 'refresh':
-                print(f"Invalid token type: {decoded.claims.get('token_type')}")
-                return jsonify({"error":"Invalid token type"}), 401
-            user_email = decoded.claims.get('sub')
-            
-            user = self.db.session.scalar(select(User).filter_by(email=user_email))
+            user_id = decoded.claims.get("sub")
+            print(f"user id: {user_id}")
+            user = self.db.session.scalar(select(User).filter_by(id=user_id))
             
             if not user:
                 return jsonify({"error": "User not found"}), 401
@@ -64,9 +65,25 @@ class AuthRepository:
             "shelter_id": user.shelter_id
             }
             
-            new_access_token = generate_token(user_email, token_data, token_type='access', expiry=900) 
+            access_token = generate_token(user.id, token_data) 
+            refresh_token = generate_token(user.id, {"token_type": "refresh"}, token_type='refresh') 
             
-            return jsonify({"token": new_access_token}), 200
+            response = jsonify({"token": access_token,
+                                # bring this into claims and/or store in state
+                            "user": {
+                                "id": user.id,
+                                "shelter_id": user.shelter_id
+                                },
+                            })
+            response.set_cookie('refresh_token',
+                                refresh_token,
+                                httponly=True,
+                                secure=False, # set to True in Prod
+                                samesite='Lax',
+                                max_age=604800,
+                                path='/'
+                                )
+            return response, 200
         
         except Exception as e:
             print(f"Refresh token error: {e}")

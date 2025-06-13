@@ -88,12 +88,15 @@ export const refreshToken = async () => {
 
   const response = await fetch(`/api/refresh-token`, requestOptions);
   if (response.status !== 200) {
-    if (response.status == 401) throw new Error("Unauthorised");
+    if (response.status == 401) {
+      throw new Error("Unauthorised")
+    }
     else {
-      throw new Error("refresh failed");
+      throw new Error(response.status, ": refresh failed");
     }
   }
 
   const data = await response.json();
   return data;
 };
+
