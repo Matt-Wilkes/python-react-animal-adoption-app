@@ -32,8 +32,7 @@ def display_one_animal(id):
         return jsonify(animal.to_dict()), 200
 
 
-# THIS FUNCTION WILL POST A NEW ANIMAL TO THE DATABASE
-# TODO : Will I need to change '/listings' to something else? 
+
 @animal_bp.route('', methods=['POST'])
 @token_checker # Added this decorator to check for token. 
 def create_new_animal():
