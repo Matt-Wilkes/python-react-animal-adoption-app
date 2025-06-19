@@ -1,8 +1,6 @@
-
-
 export const getAnimals = async () => {
   try {
-    const response = await fetch(`/api/listings`, {method: "GET"});
+    const response = await fetch(`/api/animals`, { method: "GET" });
     if (response.status !== 200) {
       throw new Error("Unable to fetch animals");
     }
@@ -14,12 +12,10 @@ export const getAnimals = async () => {
   }
 };
 
-
-
 export const createAnimal = async (authFetch, animal) => {
   try {
-    console.log(`Making request to: /api/listings`);
-    const response = await authFetch(`/api/listings`, {
+    console.log(`Making request to: /api/animals`);
+    const response = await authFetch(`/api/animals`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,9 +38,8 @@ export const createAnimal = async (authFetch, animal) => {
 };
 
 export const getSingleAnimal = async (id) => {
-
   try {
-    const response = await fetch(`/api/listings/${id}`, {method: "GET"});
+    const response = await fetch(`/api/animals/${id}`, { method: "GET" });
     if (response.status !== 200) {
       throw new Error("Unable to fetch this animal");
     }
@@ -101,8 +96,11 @@ export const editAnimal = async (authFetch, animalId, updatedAnimalData) => {
   };
 
   try {
-    console.log(`Making request to: /api/listings/${animalId}`);
-    const response = await authFetch(`/api/listings/${animalId}`,requestOptions);
+    console.log(`Making request to: /api/animals/${animalId}`);
+    const response = await authFetch(
+      `/api/animals/${animalId}`,
+      requestOptions
+    );
 
     if (!response.ok) {
       throw new Error("Error updating animal profile");
@@ -123,7 +121,11 @@ export const editAnimal = async (authFetch, animalId, updatedAnimalData) => {
 // This function changes the isActive state to be set to False
 // Makes a PUT request to change isActive field in db to 'false'
 
-export const updateAnimalActiveStatus = async (authFetch, animalId, isActive) => {
+export const updateAnimalActiveStatus = async (
+  authFetch,
+  animalId,
+  isActive
+) => {
   const requestOptions = {
     method: "PUT",
     headers: {
@@ -133,7 +135,7 @@ export const updateAnimalActiveStatus = async (authFetch, animalId, isActive) =>
 
   try {
     const response = await authFetch(
-      `/api/listings/${animalId}/change_isactive`,
+      `/api/animals/${animalId}/change_isactive`,
       requestOptions
     );
 

@@ -14,13 +14,20 @@ const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [userData, setUserData] = useState({"shelter_id": 0});
 
   // initAuth will run on mount
   useEffect(() => {
     const initAuth = async () => {
       try {
         console.log('useEffect attempt to refresh token')
-        await handleRefreshToken();
+        const newAccessToken = await handleRefreshToken();
+        if (newAccessToken) {
+          await populateUserData(newAccessToken)
+        }
+        else {
+          console.log("No token received, couldn't populate user data")
+        }
       } catch (error) {
         console.error("Failed to initialize auth", error);
         setIsAuthenticated(false);
@@ -31,6 +38,7 @@ const AuthProvider = ({ children }) => {
     };
 
     initAuth();
+   
   }, []);
 
   const isTokenExpired = async (token) => {
@@ -45,6 +53,16 @@ const AuthProvider = ({ children }) => {
       return true;
     }
   };
+
+  const populateUserData = async (token) => {
+    try {
+      const userShelterId = jwtDecode(token).shelter_id
+      setUserData({...userData, ['shelter_id']: userShelterId})
+      console.log('user shelter id', userShelterId)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleRefreshToken = async () => {
     if (refreshing == true) return false;
@@ -161,6 +179,7 @@ const AuthProvider = ({ children }) => {
     token,
     isAuthenticated,
     isLoading,
+    userData,
     signup: handleSignUp,
     login: handleLogin,
     logout: handleLogout,

@@ -5,10 +5,11 @@ from lib.models import Animal
 
 
 
-def test_get_all_animals(app_ctx, app, animal_repository):
+def test_get_all_animals(app_ctx, animal_repository):
     """get_all should return all animals"""
     repo, test_animals = animal_repository
     animals = repo.get_all()
+    print(animals)
     assert len(animals) == len(test_animals)
 
 def test_get_all_active(app_ctx, app, animal_repository):
@@ -17,7 +18,7 @@ def test_get_all_active(app_ctx, app, animal_repository):
     """
     repo, test_animals = animal_repository
     active_animals = repo.get_all_active()
-    assert len(active_animals) == 2
+    assert len(active_animals) == 4
         
 
 def test_get_by_id(app_ctx, app, animal_repository):
@@ -26,6 +27,7 @@ def test_get_by_id(app_ctx, app, animal_repository):
     """
     repo, test_animals = animal_repository
     animal = repo.get_by_id(3)
+    print(animal)
     assert animal.id == 3
 
 def test_create_new_animal(app_ctx, app, animal_repository):
@@ -53,7 +55,7 @@ def test_create_new_animal(app_ctx, app, animal_repository):
     animal = db.session.scalar(select(Animal).filter_by(name="new animal"))
     animals = repo.get_all()
 
-    assert animals[3].name == "new animal"
+    assert animals[-1].name == "new animal"
     assert animal.name == "new animal"
     assert len(animals) == len(test_animals)+1
 
@@ -93,4 +95,57 @@ def test_update_animal(app_ctx, app, animal_repository):
         assert animal.images == 1
         assert animal.isActive == True
         assert animal.shelter_id == 1
-  
+
+def test_get_shelters_animals(app_ctx, db_connection, animal_repository):
+    """
+    get_users_animals should return all animals 
+    belonging to the given shelter_id
+    """
+    repo, test_animals = animal_repository
+    shelter_id = 1
+    shelters_animals = repo.get_shelters_animals(shelter_id)
+
+    assert len(shelters_animals) == 3
+    
+def test_get_shelters_active_animals(app_ctx, db_connection, animal_repository):
+    """
+    get_users_active_animals should return all animals 
+    that belong to the same shelter as the user
+    and have an 'is_active' value of True
+    """
+    repo, test_animals = animal_repository
+    shelter_id = 1
+    shelters_animals = repo.get_shelters_active_animals(shelter_id)
+    
+    assert len(shelters_animals) == 2
+    
+    for animal in shelters_animals:
+        assert animal.isActive is True
+        assert animal.shelter_id == shelter_id
+        
+    animal_names = [animal.name for animal in shelters_animals]
+    assert "Test One" in animal_names
+    assert "Test Two" in animal_names
+    
+def test_get_shelters_inactive_animals(app_ctx, db_connection, animal_repository):
+    """
+    get_users_inactive_animals should return all animals 
+    that belong to the same shelter as the user
+    and have an 'is_active' value of False
+    """
+    repo, test_animals = animal_repository
+    shelter_id = 1
+    users_animals = repo.get_shelters_inactive_animals(shelter_id)
+    
+    assert len(users_animals) == 1
+    
+    for animal in users_animals:
+        assert animal.isActive is False
+        assert animal.shelter_id == shelter_id
+        
+    animal_names = [animal.name for animal in users_animals]
+    assert "Test Three" in animal_names
+    
+    animal_names = [animal.name for animal in users_animals]
+    assert "Test One" not in animal_names
+    assert "Test Two" not in animal_names

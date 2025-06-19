@@ -26,7 +26,7 @@ def display_animals():
 
 
 
-@animal_bp.route('/<int:id>', methods= ['GET'])
+@animal_bp.route('/<int:id>', methods=['GET'])
 def display_one_animal(id):
         animal = animal_repo.get_by_id(id)
         return jsonify(animal.to_dict()), 200
@@ -74,9 +74,17 @@ def create_new_animal():
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     data = request.get_json()
-    print(f"animal data: ${data}")
-    animal = animal_repo.update_animal(data)
+
+    animal = animal_repo.get_by_id(id)
+    
     if not animal:
-        return jsonify({"message": "Animal not found"}), 404
+        return jsonify({"error": "Animal not found"}), 404
+    
+    elif animal.shelter_id == g.shelter_id:
+        updated_animal = animal_repo.update_animal(data)
+        if not updated_animal:
+            return jsonify({"error": "something went wrong"}), 500
+        else:
+            return jsonify(updated_animal.to_dict()), 200
     else:
-        return jsonify(animal.to_dict()), 200
+        return jsonify({"error": "You do not have permission to update this animal"}), 403

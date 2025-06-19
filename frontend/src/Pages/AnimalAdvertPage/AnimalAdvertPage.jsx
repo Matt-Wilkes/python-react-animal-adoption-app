@@ -29,7 +29,7 @@ export const AnimalAdvertPage = () => {
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
   const { id } = useParams();
-  const { authFetch, isAuthenticated } = useAuth();
+  const { authFetch, isAuthenticated, userData } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +41,6 @@ export const AnimalAdvertPage = () => {
         if (data.images != 0) {
           const profileImageUrl = buildImageUrl(data.id, data.profileImageId);
           setProfileImage(profileImageUrl);
-          // console.log(profileImageUrl)
         }
       } catch (error) {
         console.error("Failed to fetch animal data:", error);
@@ -88,7 +87,7 @@ export const AnimalAdvertPage = () => {
   const handleSaveChanges = async () => {
     try {
       const updatedAnimalData = { ...formData };
-      const response = await editAnimal(authFetch, id, updatedAnimalData);
+      const response = await editAnimal(authFetch, animalData.id, updatedAnimalData);
       setAnimalData(response.data);
       setisEditMode(false);
     } catch (error) {
@@ -214,7 +213,7 @@ export const AnimalAdvertPage = () => {
             </List>
 
             {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
-            {isAuthenticated && animalData.shelter_id == 1 && (
+            {isAuthenticated && animalData.shelter_id == userData.shelter_id && (
               <Box
                 sx={{
                   mt: 4,
