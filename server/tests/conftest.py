@@ -1,3 +1,4 @@
+import time
 from flask import Flask, jsonify
 import pytest
 from lib.database_connection import DatabaseConnection, db
@@ -53,12 +54,42 @@ def test_user(app_ctx):
     db.session.commit()
 
 @pytest.fixture
-def animal_repository(app, db_connection):
+def auth_user(mocker):
+    def _auth_user(user_id=1,shelter_id=1, **claims):
+        iat = int(time.time()) - 100
+        exp = int(time.time()) + 900
+        mock_token = mocker.Mock()
+        mock_token.claims = {
+            "iss": "pawsforacause",
+            "sub": user_id,
+            "iat": iat,
+            "exp": exp,
+            "token_type": "access",
+            "shelter_id": shelter_id
+        }
+        mocker.patch('routes.auth.decode_token', return_value=mock_token)
+        mocker.patch('routes.auth.validate_token', return_value=None)
+        return mock_token
+    return _auth_user
+
+pytest.fixture  
+def no_auth(mocker):
+    """Mock failed authentication"""
+    mocker.patch('routes.auth.decode_token', side_effect=Exception("Invalid token"))
+
+@pytest.fixture
+def animal_repository(app_ctx, db_connection):
     test_shelter = Shelter(
     name = "Example Shelter",
     location = "South London",
     email = "info@example.com",
     phone_number = "07123123123"
+)
+    test_shelter_2 = Shelter(
+    name = "Example Shelter 2",
+    location = "North London",
+    email = "info@example2.com",
+    phone_number = "07321321321"
 )
     test_animals = [
         Animal(
@@ -102,10 +133,38 @@ def animal_repository(app, db_connection):
             images=1,
             isActive=False,
             shelter=test_shelter
-        )
+        ),
+        Animal(
+            name="Test Four",
+            species="Rabbit",
+            age=3,
+            breed="wereRabbit",
+            location="London",
+            male=True,
+            bio="This is a test wereRabbit.",
+            neutered=False,
+            lives_with_children=False,
+            images=1,
+            isActive=True,
+            shelter=test_shelter_2
+        ),
+        Animal(
+            name="Test Five",
+            species="Other",
+            age=2,
+            breed="Monkey",
+            location="London",
+            male=True,
+            bio="This is a test Monkey.",
+            neutered=False,
+            lives_with_children=False,
+            images=1,
+            isActive=True,
+            shelter=test_shelter_2
+        ),
     ]
-    with app.app_context():
-        db_connection.seed_db(test_animals)
+    # with app.app_context():
+    db_connection.seed_db(test_animals)
     
     repo = AnimalRepository(db)
     return repo, test_animals

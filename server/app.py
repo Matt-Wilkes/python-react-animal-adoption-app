@@ -40,7 +40,7 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
         # Load the test configuration
         app.config.update(test_config)
     # Register blueprints
-    app.register_blueprint(animal_bp, url_prefix='/listings')
+    app.register_blueprint(animal_bp, url_prefix='/animals')
     app.register_blueprint(auth_bp)
     
     # # Define routes
