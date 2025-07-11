@@ -59,13 +59,25 @@ class DatabaseConnection:
         
         return private_key_pem, public_key_pem
     
-    def _set_keys(self, app):
+    def _set_keys(self, app: Flask):
         """set private and public keys"""
         private_key_pem, public_key_pem = self._get_keys(app)
         
         from joserfc.jwk import RSAKey
         app.config['JWT_PRIVATE_KEY'] = RSAKey.import_key(private_key_pem)
         app.config['JWT_PUBLIC_KEY'] = RSAKey.import_key(public_key_pem)
+        
+    def _configure_GCP(self, app: Flask):
+        # configure GCP credentials
+        gcs_key_path = Path(app.instance_path) / 'storage-uploader-key.json'
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(gcs_key_path)
+        
+        app.config['GCP_BASE_URL'] = 'https://storage.googleapis.com'
+        app.config['GCP_PUBLIC_BUCKET_NAME'] = os.getenv('GCP_PUBLIC_BUCKET_NAME')
+        app.config['GCP_PRIVATE_BUCKET_NAME'] = os.getenv('GCP_PRIVATE_BUCKET_NAME')
+        app.config['GCP_IMAGE_ASSETS_PATH'] = 'assets/images'
+        app.config['GCP_ANIMAL_IMAGE_LIMIT'] = 10
+        
     
     def configure_app(self, app: Flask):
         """configure a flask app and set up a connection to the database"""
@@ -80,14 +92,20 @@ class DatabaseConnection:
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
         # app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
-        app.config['GOOGLE_APPLICATION_CREDENTIALS'] = Path(app.instance_path) / 'storage-uploader-key.json'
         # app.config['SQLALCHEMY_ECHO'] = True
         app.config['ACCESS_TOKEN_EXPIRY'] = 900 # 15 minutes
         app.config['REFRESH_TOKEN_EXPIRY'] = 604800 # 7 days
         app.config['ACCESS_TOKEN_LEEWAY'] = 60 # 1 minute
         app.config['REFRESH_TOKEN_LEEWAY'] = 300 # 5 minutes
+        app.config['MAX_CONTENT_LENGTH'] = 3.1 * 1024 * 1024
+        app.config['IMAGE_UPLOAD_EXTENSIONS'] = ['jpg', 'png', 'gif', 'webp']
+        
+        self._configure_GCP(app)
+        # print(f"GOOGLE_APPLICATION_CREDENTIALS: {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')}")
+        
 
         # intialise SQLAlchemy with app
+        
         db.init_app(app)
         
         migrate.init_app(app, db)

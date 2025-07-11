@@ -23,12 +23,35 @@ export const createAnimal = async (authFetch, animal) => {
       body: JSON.stringify(animal),
     });
     if (!response.ok) {
-      throw new Error("Error creating post");
+      throw new Error("Error creating animal profile");
     }
     const data = await response.json();
     return {
       status: response.status,
       message: "Successfully created animal profile",
+      data: data,
+    };
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
+
+export const uploadAnimalImages = async (authFetch, animalId, formData) => {
+  try {
+    console.log(`Making request to: /api/animals/${animalId}/upload-images`);
+    const response = await authFetch(`/api/animals/${animalId}/upload-images`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error("Error uploading images");
+    }
+    const data = await response.json();
+    console.log('image data:', data)
+    return {
+      status: response.status,
+      message: "Received image data",
       data: data,
     };
   } catch (error) {
@@ -88,7 +111,7 @@ export const getSingleAnimal = async (id) => {
 //  */
 export const editAnimal = async (authFetch, animalId, updatedAnimalData) => {
   const requestOptions = {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },

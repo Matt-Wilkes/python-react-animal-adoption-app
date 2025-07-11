@@ -47,12 +47,12 @@ class AnimalRepository:
             )
 
             self.db.session.add(animal)
-            return animal
+        return animal
         
     def update_animal(self, data):
-        # with self.db.session.begin():
             stmt = (update(Animal).where(Animal.id == data["id"]).values(data).returning(Animal))
             updated_animal = self.db.session.scalar(stmt)
             print(updated_animal)
+            self.db.session.commit()
             return updated_animal
             
