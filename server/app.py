@@ -1,6 +1,8 @@
-from pathlib import Path
+
+import os
 import time
 import click
+from pathlib import Path
 from flask import Blueprint, Flask, request, jsonify, send_from_directory
 from flask.cli import with_appcontext
 from flask_sqlalchemy import SQLAlchemy
@@ -13,7 +15,7 @@ from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
 from routes.auth_routes import auth_bp
 # from dotenv import load_dotenv
-import os
+
 
 # Photo upload
 # from werkzeug.utils import secure_filename
@@ -188,8 +190,7 @@ if __name__ == '__main__':
     
 ############ Photo Upload.
 
-# app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
-# app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
+
 # app.config['UPLOAD_PATH'] = 'uploads'
 
 # # Test to allow system admin to view files.

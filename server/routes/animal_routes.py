@@ -5,6 +5,8 @@ from flask_cors import CORS
 from lib.models.animal_repository import AnimalRepository
 from lib.database_connection import db
 from routes.auth import decode_token, token_checker
+from utils.upload_util import upload_images
+from utils.image_validator import check_image_validity
 
 animal_repo = AnimalRepository(db)
 animal_bp = Blueprint('animal', __name__)
@@ -40,6 +42,7 @@ def create_new_animal():
     data['shelter_id']=g.shelter_id
     animal = animal_repo.create_new_animal(data)
     return jsonify(animal.to_dict()), 201
+
    
         # below lines aren't needed until upload is implemented
         # retrieved_animal = db.session.get(Animal, animal.id)
@@ -70,11 +73,12 @@ def create_new_animal():
         
 
 # This function allows a logged in user to edit information about a specific animal
-@animal_bp.route('/<int:id>', methods=['PUT'])
+@animal_bp.route('/<int:id>', methods=['PATCH'])
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     data = request.get_json()
-
+    data["id"] = id
+    
     animal = animal_repo.get_by_id(id)
     
     if not animal:
@@ -88,3 +92,16 @@ def update_animal(id):
             return jsonify(updated_animal.to_dict()), 200
     else:
         return jsonify({"error": "You do not have permission to update this animal"}), 403
+    
+@animal_bp.route('/<int:id>/upload-images', methods=['POST'])
+@token_checker
+def upload_animal_images(id):
+
+    files = request.files
+    fileList = files.getlist('file')
+    valid_files, invalid_files = check_image_validity(fileList)
+    print(f"valid files: {valid_files}")
+    print(f"invalid files: {invalid_files}")
+    response = upload_images(valid_files, id)
+
+    return response

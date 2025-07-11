@@ -72,10 +72,11 @@ def auth_user(mocker):
         return mock_token
     return _auth_user
 
-pytest.fixture  
+@pytest.fixture  
 def no_auth(mocker):
     """Mock failed authentication"""
     mocker.patch('routes.auth.decode_token', side_effect=Exception("Invalid token"))
+    
 
 @pytest.fixture
 def animal_repository(app_ctx, db_connection):
