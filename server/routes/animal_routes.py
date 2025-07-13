@@ -5,6 +5,7 @@ from flask_cors import CORS
 from lib.models.animal_repository import AnimalRepository
 from lib.database_connection import db
 from routes.auth import decode_token, token_checker
+from utils.gcp_client import GCSImageStorage, get_gcs_public_config
 from utils.upload_util import upload_images
 from utils.image_validator import check_image_validity
 
@@ -30,8 +31,16 @@ def display_animals():
 
 @animal_bp.route('/<int:id>', methods=['GET'])
 def display_one_animal(id):
-        animal = animal_repo.get_by_id(id)
-        return jsonify(animal.to_dict()), 200
+    animal = animal_repo.get_by_id(id)
+    print(f'animal_data: {animal}')
+    return jsonify(animal.to_dict()), 200
+    
+@animal_bp.route('/<int:id>/images', methods=['GET'])
+def get_images(id):
+    config = get_gcs_public_config()
+    storage_client = GCSImageStorage(config['bucket_name'])
+    animal_image_list = storage_client.list_animal_images(id)
+    return animal_image_list, 200
 
 
 
@@ -42,34 +51,6 @@ def create_new_animal():
     data['shelter_id']=g.shelter_id
     animal = animal_repo.create_new_animal(data)
     return jsonify(animal.to_dict()), 201
-
-   
-        # below lines aren't needed until upload is implemented
-        # retrieved_animal = db.session.get(Animal, animal.id)
-        # retrieved_animal.image = f"unique_id_{retrieved_animal.id}"
-        
-
-        # Step b - Save the image into the static folder
-
-        # uploader = FileUploader.FileUploader(
-        #     upload_location=os.getenv("PHOTO_UPLOAD_LOCATION"),
-        #     allowed_extensions=app.config['UPLOAD_EXTENSIONS']
-        # )
-
-        # uploaded_file = request.files['file']
-        # success, message = uploader.validate_and_save(uploaded_file)
-
-        # if not success:
-        #     return message, 400
-        # return jsonify(animal.as_dict()), 201
-# @animal_bp.route('/', methods=['OPTIONS'])
-# @animal_bp.route('/<int:id>', methods=['OPTIONS'])
-# def handle_options(id=None):
-#     response = jsonify({})
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-#     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
-#     return response
         
 
 # This function allows a logged in user to edit information about a specific animal

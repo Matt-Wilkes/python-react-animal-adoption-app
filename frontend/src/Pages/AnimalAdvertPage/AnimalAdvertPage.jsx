@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import {
   editAnimal,
+  getAnimalImages,
   getSingleAnimal,
   updateAnimalActiveStatus,
 } from "../../services/animals";
@@ -20,11 +21,13 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "../../components/Context/AuthProvider";
 import { buildImageUrl } from "../../utils/gcpUtils";
+import { Carousel } from "../../components/Carousel/Carousel";
 
 export const AnimalAdvertPage = () => {
   const [animalData, setAnimalData] = useState(null);
   const [formData, setFormData] = useState({});
   const [profileImage, setProfileImage] = useState("/profile_placeholder.png");
+  const [images, setImages] = useState([])
   const [error, setError] = useState(null);
   const [isActive, setisActive] = useState(true);
   const [isEditMode, setisEditMode] = useState(false);
@@ -41,6 +44,20 @@ export const AnimalAdvertPage = () => {
         if (data.images != 0) {
           const profileImageUrl = buildImageUrl(data.id, data.profileImageId);
           setProfileImage(profileImageUrl);
+          try {
+            const imageData = await getAnimalImages(id)
+            const animalImages = [...imageData].map((image) => {
+              return {
+                src: buildImageUrl(data.id, image),
+                alt: `${data.name}`
+              }
+            })
+            console.log('animal images:', animalImages)
+            setImages(animalImages)
+          } catch (error) {
+            console.log('error:', error)
+          }
+          
         }
       } catch (error) {
         console.error("Failed to fetch animal data:", error);
@@ -116,11 +133,12 @@ export const AnimalAdvertPage = () => {
         },
         margin: "auto",
         height: "90vh",
-        minHeight: 'min-content',
+        alignItems: "center",
+        // minHeight: 'min-content',
         // border: '2px solid blue',
       }}
     >
-      <CardMedia
+      {/* <CardMedia
         component="img"
         sx={{
           maxHeight: '5rem',
@@ -134,7 +152,9 @@ export const AnimalAdvertPage = () => {
         }}
         image={profileImage}
         alt={`${animalData.name}'s image`}
-      />
+      /> */}
+      <Carousel data={images} />
+
       <CardContent
         sx={{
           minHeight: 'min-content',
