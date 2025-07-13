@@ -73,6 +73,19 @@ export const getSingleAnimal = async (id) => {
   }
 };
 
+export const getAnimalImages = async (id) => {
+  try {
+    const response = await fetch(`/api/animals/${id}/images`, { method: "GET" });
+    if (response.status !== 200) {
+      throw new Error("Unable to fetch this animals images");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
 // export const getProfileImage = async (id) => {
 //   const requestOptions = {
 //     method: "GET",
