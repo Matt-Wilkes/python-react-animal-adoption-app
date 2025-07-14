@@ -41,7 +41,8 @@ const AnimalCard = ({
   // }, [])
   useEffect(() => {
     const fetchProfileImage = async () => {
-      try {
+      if (!!profileImageId) {
+        try {
         const profileImageUrl = buildImageUrl(id, profileImageId);
         if (profileImageUrl) {
           setProfileImage(profileImageUrl);
@@ -51,6 +52,8 @@ const AnimalCard = ({
       } catch (error) {
         console.error("error", error);
       }
+      }
+      
     };
     fetchProfileImage();
   }, []);
