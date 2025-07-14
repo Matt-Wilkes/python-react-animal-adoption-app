@@ -113,8 +113,9 @@ export const CreateAdvertPage = () => {
         if (files.length > 0) {
           const uploaded_images = await uploadImages(newAnimalId, files)
           const successful_images_count = uploaded_images.data['uploaded'].length
+          const profile_image_id = uploaded_images.data['uploaded'][0]
           try {
-            await editAnimal(authFetch, newAnimalId, {'images': successful_images_count})
+            await editAnimal(authFetch, newAnimalId, {'images': successful_images_count, 'profileImageId': profile_image_id})
           } catch (error) {
             console.log(error)
           }
