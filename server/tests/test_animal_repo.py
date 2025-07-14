@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from lib.database_connection import db
 from sqlalchemy import select
@@ -26,9 +27,10 @@ def test_get_by_id(app_ctx, app, animal_repository):
     get_by_id should return the animal with a matching id
     """
     repo, test_animals = animal_repository
-    animal = repo.get_by_id(3)
+    test_animal_1 = test_animals[0].id
+    animal = repo.get_by_id(test_animal_1)
     print(animal)
-    assert animal.id == 3
+    assert animal.id == test_animal_1
 
 def test_create_new_animal(app_ctx, app, animal_repository):
     """
@@ -64,8 +66,9 @@ def test_update_animal(app_ctx, app, animal_repository):
     update_animal should update animal fields
     """
     repo, test_animals = animal_repository
+    animal_three = test_animals[2]
     animal_data = {
-    "id": 3,
+    "id":animal_three.id,
     "name":"Test Three updated",
     "species" : "werewolf",
     "age" : 4,
@@ -82,7 +85,7 @@ def test_update_animal(app_ctx, app, animal_repository):
     with app.app_context():
         repo.update_animal(animal_data)
         
-        animal = db.session.scalar(select(Animal).filter_by(id=3))
+        animal = db.session.scalar(select(Animal).filter_by(id = animal_three.id))
         assert animal.name == "Test Three updated"
         assert animal.species == "werewolf"
         assert animal.age == 4

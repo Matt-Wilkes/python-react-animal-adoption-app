@@ -29,13 +29,13 @@ def display_animals():
 
 
 
-@animal_bp.route('/<int:id>', methods=['GET'])
+@animal_bp.route('/<uuid:id>', methods=['GET'])
 def display_one_animal(id):
     animal = animal_repo.get_by_id(id)
     print(f'animal_data: {animal}')
     return jsonify(animal.to_dict()), 200
     
-@animal_bp.route('/<int:id>/images', methods=['GET'])
+@animal_bp.route('/<uuid:id>/images', methods=['GET'])
 def get_images(id):
     config = get_gcs_public_config()
     storage_client = GCSImageStorage(config['bucket_name'])
@@ -54,7 +54,7 @@ def create_new_animal():
         
 
 # This function allows a logged in user to edit information about a specific animal
-@animal_bp.route('/<int:id>', methods=['PATCH'])
+@animal_bp.route('/<uuid:id>', methods=['PATCH'])
 @token_checker  # Ensures that the user is authenticated
 def update_animal(id):
     data = request.get_json()
@@ -74,7 +74,7 @@ def update_animal(id):
     else:
         return jsonify({"error": "You do not have permission to update this animal"}), 403
     
-@animal_bp.route('/<int:id>/upload-images', methods=['POST'])
+@animal_bp.route('/<uuid:id>/upload-images', methods=['POST'])
 @token_checker
 def upload_animal_images(id):
 

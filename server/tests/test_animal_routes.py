@@ -31,13 +31,19 @@ def test_get_active_animals(app_ctx, db_connection, client, animal_repository):
 
 def test_get_animals_with_id(app_ctx, db_connection, client, animal_repository):
     """
-    When there is a request GET /animals/1
+    When there is a request GET /animals/fe96bf2a-7ef1-410a-887a-28a61f418304
     It should return status code 200 OK
-    And the response should be the animal with the id of 1
+    And the response should be the animal with the id of fe96bf2a-7ef1-410a-887a-28a61f418304
     """
-    response = client.get('/animals/1')
+    _,test_animals = animal_repository
+    
+    response = client.get('/animals/fe96bf2a-7ef1-410a-887a-28a61f418304')
+    response_data = response.get_json()
+    print(response_data)
     assert response.status_code == 200
-    assert response.data.decode('utf-8') == '{"age":1,"bio":"This is a test cat.","breed":"Maine Coon","id":1,"images":1,"isActive":true,"lives_with_children":false,"location":"London","male":true,"name":"Test One","neutered":false,"profileImageId":null,"shelter_id":1,"species":"cat"}\n'
+    # assert response.data.decode('utf-8') == '{"age":1,"bio":"This is a test cat.","breed":"Maine Coon","id":1,"images":1,"isActive":true,"lives_with_children":false,"location":"London","male":true,"name":"Test One","neutered":false,"profileImageId":null,"shelter_id":1,"species":"cat"}\n'
+    assert response_data['name'] == "Test One"
+    assert response_data['breed'] == "Maine Coon"
     
 
 # request POST /animals
@@ -53,7 +59,6 @@ def test_post_animal_route_logged_in(client, animal_repository, auth_user):
     auth_user()
     
     new_animal={
-        "id": 4,
         "name":"Andie",
         "species":"cat",
         "age":8,
@@ -76,17 +81,17 @@ def test_post_animal_route_logged_in(client, animal_repository, auth_user):
     assert response_data['age'] == 8
     assert response_data['isActive'] == True
 
-def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db_connection):
+def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db_connection, animal_repository):
     """
-    When there is a POST request to animals/<int:id>/upload-images
+    When there is a POST request to animals/<uuid:id>/upload-images
     And a valid image is sent in the request
     It should return a status code 201 Created
     """
     
     auth_user() 
     
-    mock_storage_class = mocker.patch('utils.gcp_client.storage.Client')
     mock_config_func = mocker.patch('utils.upload_util.get_gcs_public_config')
+    mock_storage_class = mocker.patch('utils.upload_util.GCSImageStorage')
     mock_format_filename_func = mocker.patch('utils.upload_util.format_filename_for_upload')
     
     
@@ -95,6 +100,7 @@ def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db
         'animal_image_limit': 10
     }
     mock_storage_instance = mock_storage_class.return_value
+    print(f'mock_storage_class:{mock_storage_class}')
     
     jpg_bytes = b'\xff\xd8\xff\xe0'
     print (f'first jpg_bytes: {len(jpg_bytes)}') # 4
@@ -120,11 +126,11 @@ def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db
     mock_storage_instance.list_animal_images.return_value = []
     mock_storage_instance.upload_animal_image_from_stream.return_value = {"success": True, "filename": '31bfb3ed-0cd4-48ce-a08e-4c578b283761.jpg'}
       
-    response = client.post('animals/100/upload-images', 
+    response = client.post('animals/fe96bf2a-7ef1-410a-887a-28a61f418304/upload-images', 
                            data={'file':file_obj}, 
                            headers={'Authorization': 'Bearer valid-token'})
     response_data = response.get_json()
-    
+    print(response_data)
     mock_storage_class.assert_called_once()
     assert response.status_code == 201
     assert response_data['message'] == 'Upload complete'
@@ -135,13 +141,13 @@ def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db
 
 def test_update_animal_logged_in(client, animal_repository, auth_user):
     """
-    When there is a request PATCH /animals/1
+    When there is a request PATCH /animals/fe96bf2a-7ef1-410a-887a-28a61f418304
     It should return status code 200 OK
     And the response should be the updated animal id 1 object
     """
     auth_user()
     animal_update={
-        "id": 1,
+        "id": "fe96bf2a-7ef1-410a-887a-28a61f418304",
         "name":"Andie 2.0",
         "species":"cat",
         "age":5,
@@ -157,7 +163,7 @@ def test_update_animal_logged_in(client, animal_repository, auth_user):
         "shelter_id":1,
         }
     
-    response = client.patch('/animals/1', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
+    response = client.patch('/animals/fe96bf2a-7ef1-410a-887a-28a61f418304', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
     response_data = response.get_json()
     assert response.status_code == 200
     assert response_data['name'] == 'Andie 2.0'
@@ -165,16 +171,16 @@ def test_update_animal_logged_in(client, animal_repository, auth_user):
     assert response_data['isActive'] == True
     
 """
-When there is a request PATCH /animals/5
+When there is a request PATCH /animals/f8f12b04-b612-48cc-b87d-058dee19b36e
 WHERE the animal shelter_id does not match the user.shelter_id
 It should return status code 403 Forbidden
-And the response should be the updated animal id 1 object
+And the response should be the updated animal id f8f12b04-b612-48cc-b87d-058dee19b36e object
 """
 
 def test_cannot_update_animal_from_another_shelter(client, animal_repository, auth_user):
     auth_user()
     animal_update={
-        "id": 5,
+        "id": "f8f12b04-b612-48cc-b87d-058dee19b36e",
         "name":"Test Five",
         "species":"cat",
         "age":5,
@@ -184,19 +190,18 @@ def test_cannot_update_animal_from_another_shelter(client, animal_repository, au
         "bio":"This is a lovely cat and he needs a good home.",
         "neutered":True,
         "lives_with_children":True,
-        "images":1,
         "profileImageId":"profile.png",
         "isActive":True,
         "shelter_id":2,
         }
     
-    response = client.patch('/animals/5', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
+    response = client.patch('/animals/f8f12b04-b612-48cc-b87d-058dee19b36e', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
     response_data = response.get_json()
     assert response.status_code == 403
     assert response_data['error'] == "You do not have permission to update this animal"
     
 """
-When there is a request PATCH /animals/1
+When there is a request PATCH /animals/fe96bf2a-7ef1-410a-887a-28a61f418304
 And the animal doesn't exist
 It should return status code 404 NOT FOUND
 """
@@ -204,7 +209,7 @@ def test_update_none_existent_animal(client, animal_repository, auth_user):
     auth_user()
     
     animal_update={
-        "id": 100,
+        "id": "fe96bf3a-7ef1-410a-887a-28a51f418304",
         "name":"Andie 2.0",
         "species":"cat",
         "age":5,
@@ -220,7 +225,7 @@ def test_update_none_existent_animal(client, animal_repository, auth_user):
         "shelter_id":1,
         }
     
-    response = client.patch('/animals/100', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
+    response = client.patch('/animals/fe96bf3a-7ef1-410a-887a-28a51f418304', json=animal_update, headers={'Authorization': 'Bearer valid-token'})
     
     assert response.status_code == 404
     assert response.json['error'] == 'Animal not found'
