@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import ExpandCircleDownIcon from '@mui/icons-material/ExpandCircleDown';
+
 
 import "./carousel.css";
 
 export const Carousel = ({ data }) => {
 
 const [slide, setSlide] = useState(0);
-console.log(data.length -1)
 
 const nextSlide = () => {
     setSlide(slide === data.length -1 ? 0 : slide + 1)
@@ -20,7 +19,8 @@ const prevSlide = () => {
   return (
     <div className="carousel">
       <ArrowCircleLeftIcon className="arrow arrow-left" onClick={prevSlide} />
-      {data.map((item, index) => {
+      {data.length > 0 ? (
+        data.map((item, index) => {
         return (
           <img
             src={item.src}
@@ -29,7 +29,14 @@ const prevSlide = () => {
             className={slide === index ? "slide": "slide slide-hidden"}
           />
         );
-      })}
+      })
+      ) : (
+        <img 
+        src="/profile_placeholder.png"
+        key={0}
+        alt="alt text"
+        className={"slide"}/>
+      )}
       <ArrowCircleRightIcon className="arrow arrow-right" onClick={nextSlide}/>
       <span className="indicators">
         {data.map((_, index) => {
