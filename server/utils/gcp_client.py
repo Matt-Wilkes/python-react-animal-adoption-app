@@ -70,7 +70,8 @@ class GCSImageStorage:
         for blob in blobs:
             print(blob.name)
             filename = blob.name.split('/')[-1]
-            filenames.append(filename)
+            if filename:
+                filenames.append(filename)
             
         # if delimiter:
         #     print("Prefixes:")
