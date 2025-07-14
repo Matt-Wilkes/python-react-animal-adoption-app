@@ -8,10 +8,11 @@ from .user import User
 class Shelter(Base):
     __tablename__ = "shelters"
 
-    id:Mapped[int] = mapped_column( primary_key=True)
+    id:Mapped[int] = mapped_column(primary_key=True)
     name:Mapped[str] = mapped_column(String(255), nullable=False)
     location:Mapped[str] = mapped_column(String(255), nullable=False)
     email:Mapped[str] = mapped_column(String(255), nullable=False)
+    domain:Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     phone_number:Mapped[str] = mapped_column(String(20))
     animals:Mapped[List["Animal"]] = relationship('Animal', backref='shelter')
     users:Mapped[List["User"]] = relationship('User', backref='shelter')
