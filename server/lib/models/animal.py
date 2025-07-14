@@ -1,5 +1,5 @@
 
-from sqlalchemy import Boolean, ForeignKey,String, Uuid
+from sqlalchemy import UUID, Boolean, ForeignKey,String, Uuid
 from .base import Base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -9,7 +9,7 @@ import uuid
 class Animal(Base):
     __tablename__ = "animals"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(255))
     species: Mapped[str] = mapped_column(String(50))
     age: Mapped[int]

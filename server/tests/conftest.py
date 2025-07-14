@@ -44,7 +44,7 @@ def client(app):
 @pytest.fixture
 def test_user(app_ctx):
     hashed_password = bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
-    test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user",shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",domain = "@example.com", phone_number = "07123123123"))
+    test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user",shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",domain = "example.com", phone_number = "07123123123"))
     
     db.session.add(test_user)
     db.session.commit()

@@ -8,6 +8,7 @@ shelter1 = Shelter(
     name = "Battersea Dogs Home",
     location = "South London",
     email = "info@batterseadogshome.org",
+    domain = "batterseadogshome.org",
     phone_number = "07931996801"
 )
 
@@ -16,6 +17,7 @@ shelter2 = Shelter(
     name = "Cardiff Dogs Home",
     location = "Cardiff",
     email = "info@cardiffdogshome.org",
+    domain = "cardiffdogshome.org",
     phone_number = "07931996802"
 )
 
@@ -24,6 +26,7 @@ shelter3 = Shelter(
     name = "Mayhew Animal Home",
     location = "NW London",
     email = "info@themayhew.org",
+    domain = "themayhew.org",
     phone_number = "07931996802"
 )
 
