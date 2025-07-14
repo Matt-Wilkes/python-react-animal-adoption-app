@@ -1,4 +1,5 @@
 import time
+import uuid
 from flask import Flask, jsonify
 import pytest
 from lib.database_connection import DatabaseConnection, db
@@ -96,7 +97,7 @@ def animal_repository(app_ctx, db_connection):
 )
     test_animals = [
         Animal(
-            id="fe96bf2a-7ef1-410a-887a-28a61f418304",
+            id=uuid.UUID("fe96bf2a-7ef1-410a-887a-28a61f418304"),
             name="Test One",
             species="cat",
             age=1,
@@ -111,7 +112,7 @@ def animal_repository(app_ctx, db_connection):
             shelter=test_shelter
         ),
         Animal(
-            id="bfd86d41-07df-4b0d-85e0-bec04f61094b",
+            id=uuid.UUID("bfd86d41-07df-4b0d-85e0-bec04f61094b"),
             name="Test Two",
             species="dog",
             age=2,
@@ -126,7 +127,7 @@ def animal_repository(app_ctx, db_connection):
             shelter=test_shelter
         ),
         Animal(
-            id="082ad5ad-ae09-4046-9b63-8d81b6fb6f0d",
+            id=uuid.UUID("082ad5ad-ae09-4046-9b63-8d81b6fb6f0d"),
             name="Test Three",
             species="wolf",
             age=3,
@@ -141,7 +142,7 @@ def animal_repository(app_ctx, db_connection):
             shelter=test_shelter
         ),
         Animal(
-            id="04595568-1801-40d4-be13-bdbfe8ded0d8",
+            id=uuid.UUID("04595568-1801-40d4-be13-bdbfe8ded0d8"),
             name="Test Four",
             species="Rabbit",
             age=3,
@@ -156,7 +157,7 @@ def animal_repository(app_ctx, db_connection):
             shelter=test_shelter_2
         ),
         Animal(
-            id="f8f12b04-b612-48cc-b87d-058dee19b36e",
+            id=uuid.UUID("f8f12b04-b612-48cc-b87d-058dee19b36e"),
             name="Test Five",
             species="Other",
             age=2,
