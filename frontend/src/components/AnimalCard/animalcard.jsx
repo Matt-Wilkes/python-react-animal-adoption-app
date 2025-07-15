@@ -117,7 +117,7 @@ const AnimalCard = ({
 };
 // Define the prop types for the component
 AnimalCard.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   age: PropTypes.number.isRequired,
   breed: PropTypes.string.isRequired,
