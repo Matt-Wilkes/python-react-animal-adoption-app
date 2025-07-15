@@ -79,6 +79,7 @@ const Navbar = () => {
             >
             <MenuIcon />
             </IconButton>
+            {/* LEFT HAND MENU */}
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
@@ -101,7 +102,11 @@ const Navbar = () => {
               <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Animals</Typography>
               </MenuItem>
-              {!loggedIn && (
+              </Menu>
+
+
+              {/* USER MENU? */}
+              {/* {!loggedIn && (
                 <Menu>
                   <MenuItem component={Link} to="/sign-up" onClick={handleCloseNavMenu}>
                     <Typography textAlign="center">Signup</Typography>
@@ -115,17 +120,17 @@ const Navbar = () => {
                 <Menu>
                   <MenuItem component={Link} to="/create-advert" onClick={handleCloseNavMenu}>
                       <Typography textAlign="center">Create Advert</Typography>
-                    </MenuItem>
+                    </MenuItem> */}
                     {/* <MenuItem component={Link} to="/my-animals" onClick={handleCloseNavMenu}>
                       <Typography textAlign="center">My Animals</Typography>
                     </MenuItem> */}
-                    <MenuItem onClick={handleLogoutClick}>
+                    {/* <MenuItem onClick={handleLogoutClick}>
                       <Typography textAlign="center">Logout</Typography>
                     </MenuItem>
                 </Menu>
 
-              )}
-            </Menu>
+              )} */}
+            
           </Box>
 
           <Typography
