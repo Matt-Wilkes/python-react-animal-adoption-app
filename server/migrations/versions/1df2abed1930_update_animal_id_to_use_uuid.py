@@ -78,7 +78,7 @@ def downgrade():
         batch_op.alter_column('id_temp', new_column_name='id')
         batch_op.alter_column('id', nullable=False)
     
-    op.create_primary_key('animals_pkey', 'animals' ['id'])
+    op.create_primary_key('animals_pkey', 'animals', ['id'])
     op.execute('CREATE SEQUENCE animals_id_seq OWNED BY animals.id')
     op.execute('ALTER TABLE animals ALTER COLUMN id SET DEFAULT nextval(\'animals_id_seq\')')
         

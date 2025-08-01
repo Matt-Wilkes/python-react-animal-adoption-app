@@ -6,7 +6,7 @@ from werkzeug.datastructures import FileStorage
 from utils.gcp_client import GCSImageStorage
 
 
-def test_get_active_animals(app_ctx, db_connection, client, animal_repository):
+def test_get_active_animals(client, animal_repository):
     """
     When there is a request GET /animals
     It should return status code 200 OK
@@ -29,7 +29,7 @@ def test_get_active_animals(app_ctx, db_connection, client, animal_repository):
 # request GET /animals
 # with path: 1
 
-def test_get_animals_with_id(app_ctx, db_connection, client, animal_repository):
+def test_get_animals_with_id(client, animal_repository):
     """
     When there is a request GET /animals/fe96bf2a-7ef1-410a-887a-28a61f418304
     It should return status code 200 OK
@@ -81,7 +81,7 @@ def test_post_animal_route_logged_in(client, animal_repository, auth_user):
     assert response_data['age'] == 8
     assert response_data['isActive'] == True
 
-def test_upload_animal_images_valid_image(client, auth_user, mocker, app_ctx, db_connection, animal_repository):
+def test_upload_animal_images_valid_image(client, auth_user, mocker, animal_repository):
     """
     When there is a POST request to animals/<uuid:id>/upload-images
     And a valid image is sent in the request

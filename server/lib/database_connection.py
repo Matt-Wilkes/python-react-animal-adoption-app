@@ -133,11 +133,16 @@ class DatabaseConnection:
             db.create_all()
             print("Database has been reset")
     
-    def seed_db(self, data):
+    def seed_db(self, data, preserve_order=False):
         """Seed the database"""
         # with self.app.app_context():
         with db.session.begin():
-            db.session.add_all(data)
-            print(f"Database has been seeded")
+            if preserve_order:
+                for item in data:
+                    db.session.add(item)
+                    db.session.flush()
+            else:
+                db.session.add_all(data)
+                print(f"Database has been seeded")
     
     

@@ -1,3 +1,4 @@
+import uuid
 from lib.models import Base, Animal, User, Shelter
 
 
@@ -233,27 +234,47 @@ user3 = User(
     shelter = shelter2
 )
 
+
 shelters = [shelter1, shelter2, shelter3]
 animals = [animal1, animal2, animal3, animal4, animal5, animal6, animal7, animal8, animal9]
 users = [user1, user2, user3]
 
 # Test data
 test_shelter = Shelter(
+    id=1,
     name = "Example Shelter",
     location = "South London",
     email = "info@example.com",
+    domain="example.com",
     phone_number = "07123123123"
 )
+test_shelter_2 = Shelter(
+    id=2,
+    name = "Example Shelter",
+    location = "South London",
+    email = "info@example2.com",
+    domain="example2.com",
+    phone_number = "07321321321"
+)
 
-test_user = User(
-    email = "rtest@example.com",
-    password = "Chicken123!",
+test_shelter_user = User(
+    id=1,
+    email = "shelter_user@example.com",
+    password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "test",
     last_name = "user",
     shelter = test_shelter
 )
+test_user = User(
+    id=2,
+    email = "user@example333.com",
+    password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
+    first_name = "public",
+    last_name = "user",
+)
 
 test_animal_1 = Animal(
+    id=uuid.UUID("df2ce93b-4f0a-4663-a5a2-d8af6959dc84"),
     name = "Test One",
     species = "cat",
     age = 1,
@@ -268,6 +289,7 @@ test_animal_1 = Animal(
     shelter = test_shelter
 )
 test_animal_2 = Animal(
+    id=uuid.UUID("bf3d5bd8-5351-4ed3-a83d-4c6df48d40e0"),
     name = "Test Two",
     species = "dog",
     age = 2,
@@ -282,6 +304,7 @@ test_animal_2 = Animal(
     shelter = test_shelter
 )
 test_animal_3 = Animal(
+    id = uuid.UUID("90da8028-ae17-488c-bc71-67f85cd77d3e"),
     name = "Test Three",
     species = "wolf",
     age = 3,
@@ -293,10 +316,14 @@ test_animal_3 = Animal(
     lives_with_children = False,
     images = 1,
     isActive = False,
-    shelter = test_shelter
+    shelter = test_shelter_2
 )
 
+
+
 test_animals = [test_animal_1, test_animal_2, test_animal_3]
+test_shelters = [test_shelter]
+test_users = [test_shelter_user, test_user]
 #############################################################
 
 # class Animal(db.Model):
