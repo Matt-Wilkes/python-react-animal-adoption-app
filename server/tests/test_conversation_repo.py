@@ -86,19 +86,21 @@ def test_get_user_conversations(conversation_repo):
     test_user_2 = User(email="user_2@example444.com", 
                     password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
                     first_name="public", last_name="user_2")
+    animal_id = uuid.UUID("6ebc0357-849a-47ac-84c1-45cb40fa15a1")
+    shelter_id = 1
     conversation_1 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1",
+            shelter_id=shelter_id,
+            animal_id=animal_id,
             participants=[test_user]
         )
     conversation_2 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1",
+            shelter_id=shelter_id,
+            animal_id=animal_id,
             participants=[test_user_2]
         )
     conversation_2 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1",
+            shelter_id=shelter_id,
+            animal_id=animal_id,
             participants=[test_user_2, test_user]
         )
     
@@ -121,17 +123,19 @@ def test_get_shelter_conversations(conversation_repo):
                           location="London", male=True, bio="This is a test dog.",
                           neutered=False, lives_with_children=False, images=1,
                           isActive=True, shelter=test_shelter_2)
+    animal_id = uuid.UUID("6ebc0357-849a-47ac-84c1-45cb40fa15a1")
+    shelter_id_1 = 1
     conversation_1 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1"
+            shelter_id=shelter_id_1,
+            animal_id=animal_id
         )
     conversation_2 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1"
+            shelter_id=shelter_id_1,
+            animal_id=animal_id
         )
     conversation_3 = Conversation(
-            shelter_id=1,
-            animal_id="6ebc0357-849a-47ac-84c1-45cb40fa15a1"
+            shelter_id=shelter_id_1,
+            animal_id=animal_id
         )
     conversation_4 = Conversation(
             shelter=test_shelter_2,
