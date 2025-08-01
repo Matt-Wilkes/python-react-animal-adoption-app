@@ -34,8 +34,9 @@ def test_get_conversation_by_id(conversation_repo):
     """
     repo = conversation_repo
     matching_animal_id = uuid.UUID("6ebc0357-849a-47ac-84c1-45cb40fa15a1")
+    conversation_id = uuid.UUID("ce8ea8a3-3680-41c5-83d1-7bf59cdc5a28")
     
-    result = repo.get_conversation_by_id("ce8ea8a3-3680-41c5-83d1-7bf59cdc5a28")
+    result = repo.get_conversation_by_id(conversation_id)
     assert result.shelter_id == 1
     assert result.animal_id == matching_animal_id
     
