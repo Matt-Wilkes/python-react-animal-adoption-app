@@ -14,14 +14,7 @@ from flask_bcrypt import Bcrypt
 from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
 from routes.auth_routes import auth_bp
-# from dotenv import load_dotenv
-
-
-# Photo upload
-# from werkzeug.utils import secure_filename
-# import FileUploader
-# End photo upload.
-
+from routes.conversation_routes import conversation_bp
 
 
 app_dir = Path(os.path.dirname(os.path.abspath(__file__)))
@@ -44,6 +37,7 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
     # Register blueprints
     app.register_blueprint(animal_bp, url_prefix='/animals')
     app.register_blueprint(auth_bp)
+    app.register_blueprint(conversation_bp)
     
     # # Define routes
     
@@ -132,7 +126,7 @@ app.cli.add_command(seed_db_command)
 
 
 # This function adds a new user to the database
-@app.route('/api/sign-up', methods=['POST'])
+@app.route('/sign-up', methods=['POST'])
 @cross_origin(supports_credentials=True)
 def signup():
     with app.app_context():
@@ -164,6 +158,7 @@ def signup():
             "id": user.id,
             "shelter_id": user.shelter_id
             }
+        # 47-update-generate_token-arguments-in-sign-up-route
         access_token = generate_token(req_email, token_data, token_type='access', expiry=900) 
         refresh_token = generate_token(req_email, {"token_type": "refresh"}, token_type='refresh', expiry=604800) 
         response = jsonify({"token": access_token,

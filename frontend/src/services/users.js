@@ -41,3 +41,32 @@ export const getUserById = async (email, password) => {
   const data = await response.json();
   return data;
 };
+
+export const postNewMessage = async (authFetch, formData) => {
+  try {
+    console.log("Posting a new message")
+    const response = await authFetch(`/api/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    
+
+    if (!response.ok) {
+      throw new Error("Error sending message")
+    }
+
+    const data = await response.json();
+    console.log('data', data);
+    return {
+      status: response.status,
+      message: "Received message",
+      data: data,
+    };
+  } catch (error) {
+    throw error;
+  }
+}

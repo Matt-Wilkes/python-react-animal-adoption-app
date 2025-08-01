@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "../../components/Context/AuthProvider";
 import { buildImageUrl } from "../../utils/gcpUtils";
 import { Carousel } from "../../components/Carousel/Carousel";
+import ContactForm from "../../components/ContactForm/ContactForm";
 
 export const AnimalAdvertPage = () => {
   const [animalData, setAnimalData] = useState(null);
@@ -122,6 +123,7 @@ export const AnimalAdvertPage = () => {
   };
 
   return (
+    <>
     <Card
       square={true}
       sx={{
@@ -139,20 +141,20 @@ export const AnimalAdvertPage = () => {
       }}
     >
       {/* <CardMedia
-        component="img"
-        sx={{
-          maxHeight: '5rem',
-          maxHeight: {
-            xs: "30rem",
-            // sm: "30rem",
-          },
-          objectFit: {
-            xs: "cover",
-          },
-        }}
-        image={profileImage}
-        alt={`${animalData.name}'s image`}
-      /> */}
+      component="img"
+      sx={{
+        maxHeight: '5rem',
+        maxHeight: {
+          xs: "30rem",
+          // sm: "30rem",
+        },
+        objectFit: {
+          xs: "cover",
+        },
+      }}
+      image={profileImage}
+      alt={`${animalData.name}'s image`}
+    /> */}
       <Carousel data={images} />
 
       <CardContent
@@ -165,7 +167,6 @@ export const AnimalAdvertPage = () => {
           <>
             <Box sx={{
               flexDirection: "column",
-              
             }}>
               <Typography variant="h4">{animalData.name}</Typography>
               <Typography variant="h6" color="textSecondary" sx={{ mb: "1em" }}>
@@ -180,7 +181,7 @@ export const AnimalAdvertPage = () => {
                 display: "flex",
                 // border: "2px solid pink",
                 flexDirection: 'row',
-                minHeight:'min-content',
+                minHeight: 'min-content',
                 flexWrap: 'wrap',
                 "& > *": {
                   display: 'flex',
@@ -189,7 +190,6 @@ export const AnimalAdvertPage = () => {
                     md: "1 1 50%",
                     // lg: "1 1 25%",
                   },
-
                   // border: '2px solid purple',
                 },
               }}
@@ -197,39 +197,34 @@ export const AnimalAdvertPage = () => {
               <ListItem>
                 <ListItemText
                   primary="Species"
-                  secondary={animalData.species}
-                />
+                  secondary={animalData.species} />
               </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Location"
-                  secondary={animalData.location}
-                />
+                  secondary={animalData.location} />
               </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Gender"
-                  secondary={animalData.male ? "Male" : "Female"}
-                />
+                  secondary={animalData.male ? "Male" : "Female"} />
               </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Neutered"
-                  secondary={animalData.neutered ? "Yes" : "No"}
-                />
+                  secondary={animalData.neutered ? "Yes" : "No"} />
               </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Lives with Children"
-                  secondary={animalData.livesWithChildren ? "Yes" : "No"}
-                />
+                  secondary={animalData.livesWithChildren ? "Yes" : "No"} />
               </ListItem>
               {/* This should be a button */}
               {/* <ListItem>
-                <ListItemText primary="Email" 
-                  secondary="Log in to email"
-                />
-              </ListItem> */}
+              <ListItemText primary="Email"
+                secondary="Log in to email"
+              />
+            </ListItem> */}
             </List>
 
             {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}
@@ -268,24 +263,21 @@ export const AnimalAdvertPage = () => {
               value={formData.name || ""}
               onChange={handleInputChange}
               fullWidth
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <TextField
               label="Breed"
               name="breed"
               value={formData.breed || ""}
               onChange={handleInputChange}
               fullWidth
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <TextField
               label="Age"
               name="age"
               value={formData.age || ""}
               onChange={handleInputChange}
               fullWidth
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <TextField
               label="Bio"
               name="bio"
@@ -293,24 +285,21 @@ export const AnimalAdvertPage = () => {
               onChange={handleInputChange}
               fullWidth
               multiline
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <TextField
               label="Species"
               name="species"
               value={formData.species || ""}
               onChange={handleInputChange}
               fullWidth
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <TextField
               label="Location"
               name="location"
               value={formData.location || ""}
               onChange={handleInputChange}
               fullWidth
-              sx={{ mb: 2 }}
-            />
+              sx={{ mb: 2 }} />
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <Button
                 variant="contained"
@@ -331,7 +320,19 @@ export const AnimalAdvertPage = () => {
           </>
         )}
       </CardContent>
+      <Box sx={{
+        width: {
+        xs: "90%",
+        sm: "75%"
+        },
+        
+    }}>
+        <ContactForm data={animalData} />
+      </Box>
+      
     </Card>
+    
+    </>
   );
 };
 

@@ -1,10 +1,13 @@
 
+from typing import TYPE_CHECKING, List
 from sqlalchemy import UUID, Boolean, ForeignKey,String, Uuid
 from .base import Base
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 import uuid
 
+if TYPE_CHECKING:
+    from lib.models import Conversation, Shelter
 
 class Animal(Base):
     __tablename__ = "animals"
@@ -23,6 +26,8 @@ class Animal(Base):
     profileImageId: Mapped[str] = mapped_column(String(50), nullable=True)
     isActive: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     shelter_id: Mapped[int] = mapped_column(ForeignKey("shelters.id"))
+    shelter: Mapped["Shelter"] = relationship("Shelter", back_populates="animals")
+    conversations: Mapped[List["Conversation"]] = relationship("Conversation", back_populates="animal")
     
     def __repr__(self):
         try:
@@ -32,7 +37,7 @@ class Animal(Base):
     
     def to_dict(self):
         return {
-            "id": self.id,
+            "id": str(self.id),
             "name": self.name,
             "species": self.species,
             "age": self.age,

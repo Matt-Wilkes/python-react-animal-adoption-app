@@ -83,7 +83,7 @@ def update_request_data(decoded_token):
         shelter_id = decoded_token.claims.get('shelter_id')
         g.shelter_id = shelter_id
     else:
-        print("User is not part of a shelter")
+        print("Update request info: User is not part of a shelter")
 
 def decode_token(token):
     public_jwk = current_app.config['JWT_PUBLIC_KEY']
