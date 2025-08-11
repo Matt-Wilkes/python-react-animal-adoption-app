@@ -1,8 +1,8 @@
+from datetime import datetime
 import time
 import uuid
 from flask import Flask, jsonify
 import pytest
-from sqlalchemy import Date
 from lib.database_connection import DatabaseConnection, db
 from lib.models import Shelter, User, Animal, Message, Conversation
 from lib.models.animal_repository import AnimalRepository
@@ -327,7 +327,7 @@ def conversation_repo(app_ctx, db_connection: DatabaseConnection):
             content=f"This is a test message from public user 2 to shelter id 1 for test_animal_1",
             sender=test_user,
             conversation=conversation,
-            created_at=Date('2025-01-04T16:26:26.841685+01:00')
+            created_at=datetime.fromisoformat('2025-01-04T16:26:26.841685+01:00')
             )
     
     repo = ConversationRepository(db)
