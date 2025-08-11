@@ -136,25 +136,8 @@ export const AnimalAdvertPage = () => {
         margin: "auto",
         height: "90vh",
         alignItems: "center",
-        // minHeight: 'min-content',
-        // border: '2px solid blue',
       }}
     >
-      {/* <CardMedia
-      component="img"
-      sx={{
-        maxHeight: '5rem',
-        maxHeight: {
-          xs: "30rem",
-          // sm: "30rem",
-        },
-        objectFit: {
-          xs: "cover",
-        },
-      }}
-      image={profileImage}
-      alt={`${animalData.name}'s image`}
-    /> */}
       <Carousel data={images} />
 
       <CardContent
@@ -219,12 +202,6 @@ export const AnimalAdvertPage = () => {
                   primary="Lives with Children"
                   secondary={animalData.livesWithChildren ? "Yes" : "No"} />
               </ListItem>
-              {/* This should be a button */}
-              {/* <ListItem>
-              <ListItemText primary="Email"
-                secondary="Log in to email"
-              />
-            </ListItem> */}
             </List>
 
             {/* Conditionally renderinf the "Edit" button if logged in AND if token.shelter_id == animals shelter id*/}

@@ -37,6 +37,7 @@ class Message(Base):
             "read_time": self.read_time,
             "content": self.content,
             "conversation_id": self.conversation_id,
-            "sender_id": self.sender_id
+            "sender_id": self.sender_id,
+            "sender_name": f'{self.sender.first_name} {self.sender.last_name}'
         }
     

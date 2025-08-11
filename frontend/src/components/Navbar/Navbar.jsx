@@ -48,8 +48,9 @@ const Navbar = () => {
 
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#003554' }}>
-      <Container maxWidth="xl">
+    <AppBar position="static" 
+        sx={{ backgroundColor: '#003554' }}>
+      <Container maxWidth="xl" >
         <Toolbar disableGutters>
           <Typography
             variant="h6"
@@ -101,6 +102,9 @@ const Navbar = () => {
               </MenuItem>
               <MenuItem component={Link} to="/animals" onClick={handleCloseNavMenu}>
                 <Typography textAlign="center">Animals</Typography>
+              </MenuItem>
+              <MenuItem component={Link} to="/messages" onClick={handleCloseNavMenu}>
+                <Typography textAlign="center">Messages</Typography>
               </MenuItem>
               </Menu>
 
@@ -161,8 +165,6 @@ const Navbar = () => {
                 color: '#FFFACA',             
                 '&:hover': {
                   backgroundColor: '#557B71',
-                  marginRight: "1em",
-                  marginLeft: "1em", 
                 },
               }}
             >
@@ -178,12 +180,25 @@ const Navbar = () => {
                 color: '#FFFACA',             
                 '&:hover': {
                   backgroundColor: '#557B71', 
-                  marginRight: "1em",
-                  marginLeft: "1em",
                 },
               }}
             >
               Animals
+            </Button>
+            <Button
+              component={Link}
+              to="/messages"
+              data-testid="_messages"
+              sx={{
+                fontFamily: 'Arial, sans-serif',
+                backgroundColor: '#003554', 
+                color: '#FFFACA',             
+                '&:hover': {
+                  backgroundColor: '#557B71', 
+                },
+              }}
+            >
+              Messages
             </Button>
           </Box>
 
@@ -230,12 +245,12 @@ const Navbar = () => {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="My Account">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="" src="/static/images/avatar/2.jpg" />
+                  <Avatar alt="" src="/public/avatar_cat.png" />
                 </IconButton>
               </Tooltip>
               <Menu
                 sx={{ mt: "45px" }}
-                id="menu-appbar"
+                id="account-menu-appbar"
                 anchorEl={anchorElUser}
                 anchorOrigin={{
                   vertical: "top",

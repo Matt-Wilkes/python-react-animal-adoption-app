@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 
 import pytest
@@ -54,7 +55,6 @@ def test_get_conversation_by_user_and_shelter(conversation_repo):
     conversation_id = uuid.UUID("ce8ea8a3-3680-41c5-83d1-7bf59cdc5a28")
     
     result = repo.get_conversation_by_animal_and_user(user_id, animal_id)
-    print(result)
     assert result.id == conversation_id
     
 def test_get_conversation_messages(conversation_repo):
@@ -151,6 +151,62 @@ def test_get_shelter_conversations(conversation_repo):
     result = repo.get_shelter_conversations(1)
     assert len(result) == 4
     
+def test_get_shelter_conversations_with_message(conversation_repo):
+    """
+    get_shelter_conversations_with_message should return 
+    all conversations belonging to the shelter
+    AND most recent message in conversation
+    """
+    repo = conversation_repo
+    test_user = repo.db.session.get(User, 2)
+    conversation_id = uuid.UUID("ce8ea8a3-3680-41c5-83d1-7bf59cdc5a28")
+    test_shelter_user = User(id=3, email="user3@example.com", 
+                    password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
+                    first_name="shelter", last_name="user", shelter_id=1)
+    test_shelter_2 = Shelter(id=2, name="Example Shelter", location="South London", 
+                          email="info@example2.com", domain="example2.com", phone_number="07123123123")
+    test_animal_2 = Animal(id=uuid.UUID("93497185-f4be-491d-a478-b26e16ebeb4f"),name="Test Two", species="dog", age=2, breed="test breed",
+                          location="London", male=True, bio="This is a test dog.",
+                          neutered=False, lives_with_children=False, images=1,
+                          isActive=True, shelter=test_shelter_2)
+    animal_id = uuid.UUID("6ebc0357-849a-47ac-84c1-45cb40fa15a1")
+    shelter_id_1 = 1
+    conversation_1 = Conversation(
+            shelter_id=shelter_id_1,
+            animal_id=animal_id,
+            participants=[test_user, test_shelter_user]
+        )
+    message_1 = Message(
+        content="This should not be visible",
+        sender_id=2,
+        conversation=conversation_1,
+        created_at=datetime.fromisoformat('2025-08-03T16:23:20.295083+01:00')
+    )
+    message_2 = Message(
+        content="conversation_1 latest message",
+        sender=test_shelter_user,
+        conversation=conversation_1,
+        created_at=datetime.fromisoformat('2025-08-04T16:23:20.295083+01:00')
+    )
+    message_3 = Message(
+            content=f"This should not be visible",
+            sender=test_user,
+            conversation_id=conversation_id,
+            created_at=datetime.fromisoformat('2025-01-01T16:26:26.841685+01:00')
+            )
+    
+    repo.db.session.add_all([message_1, message_2, message_3 ])
+   
+    results = repo.get_shelter_conversations_with_message(1)
+    
+    messages = [message for _, message in results]
+    assert len(messages) == 2
+    assert any("This should not be visible" != message.content for message in messages)
+    assert any(message_2.content == message.content for message in messages)
+    assert any("This is a test message from public user 2 to shelter id 1 for test_animal_1" == message.content for message in messages)
+    
+    
+
 def test_create_conversation(conversation_repo):
     """
     WHEN a new conversation is created
