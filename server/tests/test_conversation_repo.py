@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 
 import pytest
@@ -179,19 +180,19 @@ def test_get_shelter_conversations_with_message(conversation_repo):
         content="This should not be visible",
         sender_id=2,
         conversation=conversation_1,
-        created_at='2025-08-03T16:23:20.295083+01:00'
+        created_at=datetime.fromisoformat('2025-08-03T16:23:20.295083+01:00')
     )
     message_2 = Message(
         content="conversation_1 latest message",
         sender=test_shelter_user,
         conversation=conversation_1,
-        created_at='2025-08-04T16:23:20.295083+01:00'
+        created_at=datetime.fromisoformat('2025-08-04T16:23:20.295083+01:00')
     )
     message_3 = Message(
             content=f"This should not be visible",
             sender=test_user,
             conversation_id=conversation_id,
-            created_at='2025-01-01T16:26:26.841685+01:00'
+            created_at=datetime.fromisoformat('2025-01-01T16:26:26.841685+01:00')
             )
     
     repo.db.session.add_all([message_1, message_2, message_3 ])
