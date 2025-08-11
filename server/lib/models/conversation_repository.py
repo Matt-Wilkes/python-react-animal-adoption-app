@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
+from sqlalchemy.orm import selectinload
 from lib.models import Conversation, Message, User
 from lib.models.conversation_participants import conversation_participants
 
@@ -37,6 +38,22 @@ class ConversationRepository:
     def get_shelter_conversations(self, shelter_id):
         result = self.db.session.scalars(select(Conversation).filter_by(shelter_id=shelter_id)).all()
         return result
+    
+    def get_shelter_conversations_with_message(self, shelter_id):
+        
+        latest_message_time = (select(func.max(Message.created_at))
+                                .where(Message.conversation_id == Conversation.id)
+                                .correlate(Conversation)
+                                .scalar_subquery()
+                                )
+            
+        results = self.db.session.execute(select(Conversation, Message)
+                                                .join(Message, Conversation.id == Message.conversation_id)
+                                                .where(Conversation.shelter_id == shelter_id)
+                                                .where(Message.created_at == latest_message_time)
+                                                ).all()
+            
+        return results 
     
     def create_conversation(self, data):
         with self.db.session.begin():

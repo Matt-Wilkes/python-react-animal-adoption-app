@@ -7,6 +7,7 @@ import SignUpPage from "./Pages/SignUpPage/SignUpPage";
 import CreateAdvertPage from "./Pages/CreateAdvertPage/CreateAdvertPage";
 import AllAnimals from "./Pages/Animals/AllAnimals";
 import AnimalAdvertPage from "./Pages/AnimalAdvertPage/AnimalAdvertPage";
+import MessagesPage from "./Pages/Messages/MessagesPage"
 import { AuthProvider } from "./components/Context/AuthProvider";
 import '@mui/material/styles/styled'; // patching an issue with vite chunking https://github.com/vitejs/vite/issues/12423
 
@@ -47,13 +48,17 @@ const router = createBrowserRouter([
         element: <AllAnimals />,
       },
       {
-        path: "animals/:id", // Path to the individual animal profile?
+        path: "animals/:id",
         element: <AnimalAdvertPage />,
       },
 
       {
-        path: "create-advert", // Path to the create advert page
+        path: "create-advert",
         element: <CreateAdvertPage />,
+      },
+      {
+        path: "messages",
+        element: <MessagesPage />,
       },
     ],
   },

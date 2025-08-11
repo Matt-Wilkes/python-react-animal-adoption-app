@@ -14,7 +14,10 @@ const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [userData, setUserData] = useState({"shelter_id": 0});
+  const [userData, setUserData] = useState(
+    {"shelter_id": 0,
+    "user_id": 0
+    });
 
   // initAuth will run on mount
   useEffect(() => {
@@ -57,12 +60,24 @@ const AuthProvider = ({ children }) => {
   const populateUserData = async (token) => {
     try {
       const userShelterId = jwtDecode(token).shelter_id
-      setUserData({...userData, ['shelter_id']: userShelterId})
-      console.log('user shelter id', userShelterId)
+      const userId = jwtDecode(token).sub
+      setUserData({
+        ...userData,
+        shelter_id: userShelterId, 
+        user_id: userId
+      })
     } catch (error) {
       console.log(error)
     }
   }
+
+  const handleConversationRefresh = (message) => {
+    setConversationMessages(prevState => ({
+        ...prevState,
+        messages: [...prevState.messages, message]}))
+}
+
+  
 
   const handleRefreshToken = async () => {
     if (refreshing == true) return false;

@@ -325,7 +325,8 @@ def conversation_repo(app_ctx, db_connection: DatabaseConnection):
     message = Message(
             content=f"This is a test message from public user 2 to shelter id 1 for test_animal_1",
             sender=test_user,
-            conversation=conversation
+            conversation=conversation,
+            created_at='2025-01-04T16:26:26.841685+01:00'
             )
     
     repo = ConversationRepository(db)
