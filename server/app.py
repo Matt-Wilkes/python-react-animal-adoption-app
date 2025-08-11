@@ -158,9 +158,8 @@ def signup():
             "id": user.id,
             "shelter_id": user.shelter_id
             }
-        # 47-update-generate_token-arguments-in-sign-up-route
-        access_token = generate_token(req_email, token_data, token_type='access', expiry=900) 
-        refresh_token = generate_token(req_email, {"token_type": "refresh"}, token_type='refresh', expiry=604800) 
+        access_token = generate_token(user.id, token_data, token_type='access') 
+        refresh_token = generate_token(user.id, {"token_type": "refresh"}, token_type='refresh') 
         response = jsonify({"token": access_token,
                         "user": {
                             "id": user.id,
