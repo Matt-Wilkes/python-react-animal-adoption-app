@@ -1,5 +1,6 @@
 
 import time
+import uuid
 import bcrypt
 from flask import Blueprint, current_app, jsonify, request
 from flask_cors import cross_origin
@@ -49,7 +50,7 @@ def verify():
         return jsonify({"message": "Invalid or expired token"}), 400
    
     
-    verification_id = decoded_token_claims.get('sub')
+    verification_id = uuid.UUID(decoded_token_claims.get('sub'))
     
     verification = verification_repository.get_verification_by_id(verification_id)
     
