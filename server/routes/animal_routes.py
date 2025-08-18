@@ -4,7 +4,7 @@ from flask_cors import CORS
 
 from lib.models.animal_repository import AnimalRepository
 from lib.database_connection import db
-from routes.auth import decode_token, token_checker
+from lib.services.auth import decode_token, token_checker
 from utils.gcp_client import GCSImageStorage, get_gcs_public_config
 from utils.upload_util import upload_images
 from utils.image_validator import check_image_validity

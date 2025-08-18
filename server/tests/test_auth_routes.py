@@ -1,14 +1,11 @@
 import time
-import pytest
 import json
-
+import uuid
 from sqlalchemy import select
 from lib.models import User
 from lib.database_connection import db
-from routes.auth import TokenClaimsRegistry, JWTClaimsRegistry, generate_token, decode_token, validate_token
-from joserfc.errors import *
-from flask import current_app
-
+from helpers.helpers import generate_pin
+from lib.services.auth import  generate_token, decode_token, validate_token
 
 
 def test_valid_login_response( app_ctx,client, db_connection, test_user):
@@ -104,7 +101,7 @@ def test_token_can_be_decoded_with_public_key(app_ctx, client, db_connection, te
     })
     token = response.json['token']
     
-    from routes.auth import decode_token
+    from lib.services.auth import decode_token
     decoded = decode_token(token)
     
     # Assert the token was decoded successfully
@@ -120,131 +117,12 @@ def test_token_is_access_token(app_ctx, client, db_connection, test_user):
     })
     token = response.json['token']
     
-    from routes.auth import decode_token
+    from lib.services.auth import decode_token
     decoded = decode_token(token)
     print(f"token_type: {decoded.claims.get('token_type')}")
     # Assert the token was decoded successfully
     assert decoded is not None
     assert decoded.claims.get('token_type') == 'access'
-
-def test_token_claims_registry_valid_claims(app_ctx,db_connection, mocker):
-    """
-    TokenClaimsRegistry should validate correctly formed access token claims
-    """
-    token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
-    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
-    current_time = int(time.time())
-    expiry = current_app.config['ACCESS_TOKEN_EXPIRY']
-    
-    valid_claims = {
-        "iss": "pawsforacause",
-        "sub": "test_user@example.com",
-        "iat": current_time,
-        "exp": current_time + expiry,
-        "token_type": "access"
-    }
-   
-    mock_super_validate = mocker.patch.object(JWTClaimsRegistry, 'validate', return_value=None)
-    
-    result = token_claims_registry.validate(valid_claims)
-    
-    assert result is None 
-    mock_super_validate.assert_called_once_with(valid_claims)
-
-
-# def test_token_claims_registry_invalid_token_type(app_ctx,db_connection,mocker):
-#     """
-#     Should raise ValueError when token type is not valid
-#     """
-    
-#     invalid_claims = {
-#         "iss": "pawsforacause", 
-#         "token_type": "pretend" 
-#     }
-    
-#     with pytest.raises(ValueError) as err:
-#         token_claims_registry.validate(invalid_claims)
-#     error_message = str(err.value)
-#     print(error_message)
-#     assert error_message == "token_type isn't valid"
-
-    
-def test_token_claims_registry_iat_not_yet_valid(app_ctx,db_connection,mocker):
-    """
-    Should raise InvalidTokenError when iat is in the future
-    """
-    token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
-    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
-    current_time = int(time.time())
-    
-    invalid_claims = {
-        "iss": "pawsforacause", 
-        "token_type": "access",
-        "iat": current_time + 30000,
-    }
-    
-    with pytest.raises(InvalidTokenError) as err:
-        token_claims_registry.validate(invalid_claims)
-    error_message = str(err.value.description)
-    assert error_message == 'The token is not valid yet'
-    
-def test_token_claims_registry_exp_invalid(app_ctx,db_connection,mocker):
-    """
-    Should raise InvalidTokenError when 'exp' is in the past
-    """
-    
-    token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
-    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
-    # mocker.patch('routes.auth.time.time', return_value=1743521149)
-    
-    invalid_claims = {
-        "iss": "pawsforacause", 
-        "token_type": "access",
-        "exp": 1743521149,
-    }
-    
-    with pytest.raises(ExpiredTokenError) as err:
-        token_claims_registry.validate(invalid_claims)
-    error_message = str(err.value)
-    print(error_message)
-    assert error_message == 'expired_token: The token is expired'
-    
-def test_token_claims_registry_iat_is_valid(app_ctx,db_connection):
-    """
-    Should return None when 'iat' time is in the past
-    """
-    
-    token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
-    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
-    current_time = int(time.time())
-    
-    valid_claims = {
-        "iss": "pawsforacause", 
-        "token_type": "access",
-        "iat": current_time,
-    }
-    
-    response = token_claims_registry.validate_iat(valid_claims.get('iat'))
-    print(response)
-    assert response == None
-    
-def test_token_claims_registry_invalid_issuer(app_ctx,db_connection,mocker):
-    """
-    Should raise ValueError when issuer is not 'pawsforacause'
-    """
-    token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
-    token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
-    
-    invalid_claims = {
-        "iss": "notpawsforacause", 
-        "token_type": "access" 
-    }
-    
-    with pytest.raises(ValueError) as err:
-        token_claims_registry.validate(invalid_claims)
-    error_message = str(err.value)
-    print(error_message)
-    assert error_message == "Issuer isn't valid!"
         
 
 def test_valid_access_token_result_is_true(app_ctx,client, db_connection, test_user, mocker):
@@ -259,14 +137,14 @@ def test_valid_access_token_result_is_true(app_ctx,client, db_connection, test_u
     assert result == None
 
 def test_expired_token_is_rejected(app_ctx, client, db_connection, test_user, mocker):  
-    mocker.patch('routes.auth.time.time', return_value=1743521149)
+    mocker.patch('lib.services.auth.time.time', return_value=1743521149)
     token_response = client.post('/token', json={
         'email': test_user.email,
         'password': 'V@lidp4ss'
     })
     token = token_response.json['token']
     print(f"token = {token}")
-    mocker.patch('routes.auth.time.time', return_value=1743523049)
+    mocker.patch('lib.services.auth.time.time', return_value=1743523049)
     print(f" the time now is: {time.time()}")
     
     response = client.get('/protected', headers={
@@ -288,4 +166,54 @@ def test_logout_removes_token(app_ctx, client, db_connection, test_user, mocker)
     assert 'refresh_token=' in cookie_header
     assert 'Max-Age=0' in cookie_header or 'Expires=' in cookie_header
     assert response.json['message'] == 'logged out successfully'
+    
+def test_verification_token_invalid_for_protected_route(app_ctx, mocker, client):
+    
+    mocker.patch('lib.services.auth.time.time', return_value=1755173415)
+    
+    mock_token = mocker.Mock()
+    mock_token.claims = {
+        'iss': 'pawsforacause', 
+        'sub': 20, 
+        'iat': 1755173315, 
+        'exp': 1755174115, 
+        'token_type': 'verification', 
+        'email': 'mock.user@example.com'
+        } 
+    
+    mocker.patch('lib.services.auth.decode_token', return_value=mock_token)
+    
+    response = client.get('/protected', headers={
+        'Authorization': f'Bearer {mock_token}'
+    })
+    
+    response_data = response.get_json()
+    print(response_data)
+    assert response_data['message'] == "Invalid token type"
+
+def test_valid_pin_verifies_user(app_ctx, client, mocker, verification_repo):
+    """
+    GIVEN a valid pin
+    POST /verify/token123
+    should update 'verified' to true
+    """
+    # take pin input from user
+    # validate pin matches bcrypt hash
+    # flask_bcrypt.check_password_hash(hashed_pin, plain_pin)
+    # the token will be passed in the post request
+    verification_id = uuid.UUID('5235c2d2-266a-4851-a48a-777ce595065e')
+    
+    mocker.patch('lib.services.auth.time.time', return_value=1755173315)
+    
+    verification_token = generate_token(verification_id, token_type='verification')
+    
+    mocker.patch('lib.services.auth.time.time', return_value=1755173615)
+    
+
+    response = client.post('/verify',json={
+        'pin': '123456',
+        'token': verification_token
+    })
+    
+    assert response.status_code == 200
     

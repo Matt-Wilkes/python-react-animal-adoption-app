@@ -126,10 +126,11 @@ const AuthProvider = ({ children }) => {
     try {
       console.log("attempting sign up...");
       const data = await signupService(formData);
-      if (data && data.token) {
+      console.log('data in handlesignup:', data)
+      if (data) {
         console.log("Sign Up successful");
-        setToken(data.token);
-        setIsAuthenticated(true);
+        // setToken(data.token); //take into verified
+        // setIsAuthenticated(true); //take into verified
         return true;
       }
       return false;

@@ -8,11 +8,10 @@ from joserfc.jwk import RSAKey
 from joserfc import jwt, errors
 from joserfc.jwt import JWTClaimsRegistry
 from flask import g
+from lib.models.verification_repository import VerificationRepository
 
 load_dotenv()
 
-# secret = os.getenv('SECRET_KEY')
-# current_app.config['SECRET_KEY']
 
 class TokenClaimsRegistry(JWTClaimsRegistry):
     def __init__(self, now = None, leeway = 0, **kwargs):
@@ -28,9 +27,14 @@ def generate_token(user_id, additional_claims=None, token_type='access'):
     private_jwk = current_app.config['JWT_PRIVATE_KEY']
    
     if token_type == 'access':
+        user_id = int(user_id)
         expiry = current_app.config['ACCESS_TOKEN_EXPIRY']
-    else:
+    elif token_type == 'refresh':
+        user_id = int(user_id)
         expiry = current_app.config['REFRESH_TOKEN_EXPIRY']
+    else:
+        user_id = str(user_id)
+        expiry = current_app.config['VERIFICATION_TOKEN_EXPIRY']
         
     current_time = int(time.time())
     expiry_time = expiry + int(time.time())
@@ -39,7 +43,7 @@ def generate_token(user_id, additional_claims=None, token_type='access'):
     
     claims = {
         "iss": "pawsforacause",
-        "sub": int(user_id),
+        "sub": user_id,
         "iat": current_time,
         "exp": expiry_time,
         "token_type": token_type
@@ -47,6 +51,8 @@ def generate_token(user_id, additional_claims=None, token_type='access'):
     
     if additional_claims:
         claims.update(additional_claims)
+        
+    
     
     print(f"Generating token with claims: {claims}") 
     token = jwt.encode(header, claims, private_jwk)
@@ -59,13 +65,15 @@ def validate_token(claims):
         token_leeway = current_app.config['ACCESS_TOKEN_EXPIRY']
     elif token_type == 'refresh':
         token_leeway = current_app.config['REFRESH_TOKEN_EXPIRY']
+    elif token_type == 'verification':
+        token_leeway = current_app.config['VERIFICATION_TOKEN_EXPIRY']
     else:
         raise ValueError("token_type isn't valid")
     
     token_claims_registry = TokenClaimsRegistry(leeway=token_leeway)
     
     print(f"About to validate {token_type} claims...")
-
+    
     token_claims_registry.validate(claims)
     token_claims_registry.validate_iat(claims.get('iat'))
     token_claims_registry.validate_exp(claims.get('exp'))

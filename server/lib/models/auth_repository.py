@@ -1,23 +1,22 @@
 from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import select
-
 from lib.models.user import User
-from routes.auth import decode_token, generate_token
+from lib.services.auth import decode_token, generate_token
 
 class AuthRepository:
-    def __init__(self, db_instance: SQLAlchemy):
+    def __init__(self, db_instance: SQLAlchemy, bcrypt_instance):
         self.db = db_instance
+        self.flask_bcrypt = bcrypt_instance
         
     def get_token(self, data):
-        from app import bcrypt
         
         req_email = data.get('email')
         req_password = data.get('password')
         user = self.db.session.scalar(select(User).filter_by(email=req_email))
         if not user:
             return jsonify({"error": "Email or password is incorrect"}), 401
-        elif bcrypt.check_password_hash(user.password, req_password):
+        elif self.flask_bcrypt.check_password_hash(user.password, req_password):
             token_data = {
             "id": user.id,
             "shelter_id": user.shelter_id
