@@ -1,7 +1,7 @@
 import time
 import uuid
 import pytest
-from lib.services.auth import TokenClaimsRegistry, JWTClaimsRegistry, decode_token, generate_token, validate_token, verify_user_pin
+from lib.services.auth import TokenClaimsRegistry, JWTClaimsRegistry, decode_token, generate_token, validate_token
 from flask import current_app
 from joserfc.errors import *
 
