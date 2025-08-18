@@ -34,7 +34,6 @@ export const signupService = async (formData) => {
     last_name: formData.last_name,
     email: formData.email,
     password: formData.password,
-    shelter_id: formData.shelter_id,
   };
 
   const requestOptions = {
@@ -47,10 +46,7 @@ export const signupService = async (formData) => {
   };
 
   const response = await fetch(`/api/sign-up`, requestOptions);
-  // if (response.status === 201) {
-  //   const data = await response.json();
-  //   return data;
-  // }
+
   if (response.status !== 201) {
     if (response.status === 409) {
       throw new Error("Signup Failed");
@@ -64,8 +60,31 @@ export const signupService = async (formData) => {
     }
   }
   const data = await response.json();
+  console.log('data:', data)
   return data;
 };
+
+export const verifyService = async (formData) => {
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+    credentials: "include",
+  };
+
+  const response = await fetch(`/api/verify`, requestOptions);
+
+  const data = await response.json()
+
+  if (response.status!== 200) {
+    // console.log('not 200', data.message)
+    throw new Error(data.message)
+  } 
+
+  return data
+}
 
 export const logoutService = async () => {
   const requestOptions = {

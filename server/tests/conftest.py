@@ -3,12 +3,16 @@ import time
 import uuid
 from flask import Flask, jsonify
 import pytest
-from lib.database_connection import DatabaseConnection, db
+from lib.database_connection import DatabaseConnection, db, flask_bcrypt
 from lib.models import Shelter, User, Animal, Message, Conversation
 from lib.models.animal_repository import AnimalRepository
 from lib.models.message_repository import MessageRepository
 from lib.models.conversation_repository import ConversationRepository
-from app import create_app, bcrypt
+from app import create_app
+from lib.models.user_repository import UserRepository
+from lib.models.shelter_repository import ShelterRepository
+from lib.models.verification_repository import VerificationRepository
+from lib.models.verification import Verification
 
 # https://docs.pytest.org/en/stable/how-to/fixtures.html
 # This is a Pytest fixture.
@@ -27,6 +31,7 @@ def db_connection(app: Flask):
     conn = DatabaseConnection(test_mode=True)
     conn.configure_app(app)
     
+    
     with app.app_context():
         conn.reset_db()
     return conn
@@ -44,7 +49,7 @@ def client(app):
 
 @pytest.fixture
 def test_user(app_ctx):
-    hashed_password = bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
+    hashed_password = flask_bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
     test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user",shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",domain = "example.com", phone_number = "07123123123"))
     
     db.session.add(test_user)
@@ -55,7 +60,7 @@ def test_user(app_ctx):
     db.session.commit()
     
 def test_public_user(app_ctx):
-    hashed_password = bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
+    hashed_password = flask_bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
     test_public_user = User(email = "Unique_test2@example333.com",password = hashed_password,first_name = "Unique_test",last_name = "user")
     
     db.session.add(test_public_user)
@@ -79,8 +84,8 @@ def auth_user(mocker):
             "token_type": "access",
             "shelter_id": shelter_id
         }
-        mocker.patch('routes.auth.decode_token', return_value=mock_token)
-        mocker.patch('routes.auth.validate_token', return_value=None)
+        mocker.patch('lib.services.auth.decode_token', return_value=mock_token)
+        mocker.patch('lib.services.auth.validate_token', return_value=None)
         return mock_token
     return _auth_user
 
@@ -97,15 +102,15 @@ def auth_non_shelter_user(mocker):
             "exp": exp,
             "token_type": "access",
         }
-        mocker.patch('routes.auth.decode_token', return_value=mock_token)
-        mocker.patch('routes.auth.validate_token', return_value=None)
+        mocker.patch('lib.services.auth.decode_token', return_value=mock_token)
+        mocker.patch('lib.services.auth.validate_token', return_value=None)
         return mock_token
     return _auth_user
 
 @pytest.fixture  
 def no_auth(mocker):
     """Mock failed authentication"""
-    mocker.patch('routes.auth.decode_token', side_effect=Exception("Invalid token"))
+    mocker.patch('lib.services.auth.decode_token', side_effect=Exception("Invalid token"))
     
 
 @pytest.fixture
@@ -206,6 +211,40 @@ def animal_repository(app_ctx, db_connection: DatabaseConnection):
     
     repo = AnimalRepository(db)
     return repo, test_animals
+
+@pytest.fixture
+def user_repo(app_ctx, db_connection: DatabaseConnection):
+    test_public_user = User(email="user@example.com", 
+                    password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
+                    first_name="public", last_name="user")
+    test_shelter = Shelter(name="Example Shelter", location="South London", 
+                          email="info@example.com", domain="example.com", phone_number="07123123123")
+    test_shelter_user = User(id=10, email="shelter_user@example.com",
+                            password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
+                            first_name="test", last_name="user", shelter=test_shelter)
+    test_unverified_user = User(id=20, email="unverified.user@example.com",
+                            password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
+                            first_name="test", last_name="user", shelter=test_shelter,verified=False)
+    db_connection.seed_db([test_public_user, test_shelter_user])
+    repo = UserRepository(db)
+    return repo
+
+@pytest.fixture
+def verification_repo(app_ctx, db_connection: DatabaseConnection):
+    test_unverified_user = User(id=19,email="public_user@public-example.com", 
+                    password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
+                    first_name="public", last_name="user", verified=False)
+    test_unverified_user_1 = User(id=20, email="unverified.user@example.com",
+                            password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
+                            first_name="test", last_name="user", verified=False)
+    
+    test_verification_item = Verification(id=uuid.UUID('5235c2d2-266a-4851-a48a-777ce595065e'),user_id=20, pin_hash=flask_bcrypt.generate_password_hash('123456').decode('utf-8'))
+    
+    test_verification_item_2 = Verification(id=uuid.UUID('5a991853-3ff2-48b3-b4f2-d5399324bfd4'),user_id=19, pin_hash=flask_bcrypt.generate_password_hash('123456').decode('utf-8'), used_at=int(time.time()))
+    
+    db_connection.seed_db([test_unverified_user_1, test_unverified_user, test_verification_item, test_verification_item_2 ])
+    repo = VerificationRepository(db)
+    return repo
 
 @pytest.fixture
 def message_repo(app_ctx, db_connection: DatabaseConnection):
@@ -335,9 +374,23 @@ def conversation_repo(app_ctx, db_connection: DatabaseConnection):
     db_connection.seed_db([message])
     return repo
 
+@pytest.fixture
+def shelter_repo(app_ctx, db_connection: DatabaseConnection):
+    
+    test_shelter = Shelter(id=1, name="Example Shelter", location="South London", 
+                          email="info@example.com", domain="example.com", phone_number="07123123123")
+    
+    test_shelter_2 = Shelter(id=2, name="Example Shelter 2", location="South London", 
+                          email="info@example_battersea.com", domain="example_battersea.com", phone_number="07321321321")
+    test_shelter_3 = Shelter(id=3, name="Example Shelter 3", location="South London", 
+                          email="info@example_dogsandcats.com", domain="dogsandcats.com", phone_number="07111222333")
+    
+    repo = ShelterRepository(db)
+    db_connection.seed_db([test_shelter, test_shelter_2, test_shelter_3])
+    return repo
+
 # new UUIDs
-# id=uuid.UUID('5235c2d2-266a-4851-a48a-777ce595065e')
-# id=uuid.UUID('5a991853-3ff2-48b3-b4f2-d5399324bfd4')
+# 
 # id=uuid.UUID('fa895567-cf50-49e8-b4f0-cf6d0b2cf0bc')
 # id=uuid.UUID('64661364-3f1d-4fd4-a7a5-39ea709bb4b1')
 # id=uuid.UUID('f7ebba41-c036-4798-85d9-291e98dd624a')

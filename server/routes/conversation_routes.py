@@ -4,7 +4,7 @@ from sqlalchemy import UUID
 from lib.database_connection import db
 from lib.models.conversation_repository import ConversationRepository
 from lib.models.message_repository import MessageRepository
-from routes.auth import token_checker
+from lib.services.auth import token_checker
 
 
 conversation_repo = ConversationRepository(db)

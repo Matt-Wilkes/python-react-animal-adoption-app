@@ -3,17 +3,14 @@ import os
 import time
 import click
 from pathlib import Path
-from flask import Blueprint, Flask, request, jsonify, send_from_directory
+from flask import Flask, send_from_directory
 from flask.cli import with_appcontext
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
-from sqlalchemy import select
-from db.seed import Animal, User, users, animals
-from routes.auth import generate_token
-from flask_bcrypt import Bcrypt 
+from flask_cors import CORS
+from db.seed import users, animals
 from lib.database_connection import DatabaseConnection, db
 from routes.animal_routes import animal_bp
 from routes.auth_routes import auth_bp
+from routes.user_routes import user_bp
 from routes.conversation_routes import conversation_bp
 
 
@@ -38,6 +35,7 @@ def create_app(test_config=None, instance_relative_config=True, static_folder='s
     app.register_blueprint(animal_bp, url_prefix='/animals')
     app.register_blueprint(auth_bp)
     app.register_blueprint(conversation_bp)
+    app.register_blueprint(user_bp)
     
     # # Define routes
     
@@ -71,8 +69,6 @@ CORS(app,
      origins=["http://localhost:5173"],
      supports_credentials=True)
 
-# Encryption with Bcrypt
-bcrypt = Bcrypt(app) 
 
 @click.command('init-db')
 @with_appcontext
@@ -125,56 +121,7 @@ app.cli.add_command(seed_db_command)
     
 
 
-# This function adds a new user to the database
-@app.route('/sign-up', methods=['POST'])
-@cross_origin(supports_credentials=True)
-def signup():
-    with app.app_context():
-        data = request.get_json()
-        req_email = data.get('email')
-        plaintext_password = data['password']
-        hashed_password = bcrypt.generate_password_hash(plaintext_password).decode('utf-8') 
 
-        # Shelter_id assignment via email domain name happens here
-        # shelter_id = None
-        # for domain, id in email_to_shelter_mapping.items():
-        #     if domain in req_email:
-        #         shelter_id = id
-        #         break
-
-        #     if shelter_id is None:
-        #         return jsonify({'error': 'You do not have a registered animal shelter email'}), 400
-
-        user = User(
-            email=data['email'],
-            password=hashed_password,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            shelter_id = data['shelter_id']
-        )
-        db.session.add(user)
-        db.session.commit()
-        token_data = {
-            "id": user.id,
-            "shelter_id": user.shelter_id
-            }
-        access_token = generate_token(user.id, token_data, token_type='access') 
-        refresh_token = generate_token(user.id, {"token_type": "refresh"}, token_type='refresh') 
-        response = jsonify({"token": access_token,
-                        "user": {
-                            "id": user.id,
-                            "shelter_id": user.shelter_id
-                            },
-                        })
-        response.set_cookie('refresh_token',
-                            refresh_token,
-                            httponly=True,
-                            secure=False, # set to True in Prod
-                            samesite='Lax',
-                            max_age=604800,
-                            path='/',
-                            )
-        return response, 201
 
 # These lines start the server if you run this file directly
 # They also start the server configured to use the test database

@@ -7,6 +7,7 @@ from sqlalchemy.engine import URL
 from lib.models.base import Base
 import lib.models
 from flask.cli import with_appcontext
+from flask_bcrypt import Bcrypt 
 
 import os
 from dotenv import load_dotenv
@@ -14,6 +15,7 @@ from dotenv import load_dotenv
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
+flask_bcrypt = Bcrypt() 
 class DatabaseConnection:
     
     def __init__(self, test_mode=False):
@@ -91,24 +93,25 @@ class DatabaseConnection:
             
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-        # app.config['UPLOAD_FOLDER'] = 'photo_uploads/images'
-        # app.config['SQLALCHEMY_ECHO'] = True
         app.config['ACCESS_TOKEN_EXPIRY'] = 900 # 15 minutes
         app.config['REFRESH_TOKEN_EXPIRY'] = 604800 # 7 days
+        app.config['VERIFICATION_TOKEN_EXPIRY'] = 900 # 15 minutes
         app.config['ACCESS_TOKEN_LEEWAY'] = 60 # 1 minute
         app.config['REFRESH_TOKEN_LEEWAY'] = 300 # 5 minutes
+        app.config['VERIFICATION_TOKEN_LEEWAY'] = 60 # 1 minute
         app.config['MAX_CONTENT_LENGTH'] = 3.1 * 1024 * 1024
         app.config['IMAGE_UPLOAD_EXTENSIONS'] = ['jpg', 'png', 'gif', 'webp']
+        app.config['ENVIRONMENT'] = os.environ.get('ENV')
         
         self._configure_GCP(app)
-        # print(f"GOOGLE_APPLICATION_CREDENTIALS: {os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')}")
         
-
         # intialise SQLAlchemy with app
         
         db.init_app(app)
         
         migrate.init_app(app, db)
+        
+        flask_bcrypt.init_app(app)
         
         self._set_keys(app)
         

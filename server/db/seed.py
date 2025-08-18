@@ -214,7 +214,8 @@ user1 = User(
     password = "$2b$12$j1Jfgt6YnqBRF.4Npxlp9eVBPBgh/2HCdHHfMCcmsfmVIh98mM86O",
     first_name = "reza",
     last_name = "example",
-    shelter = shelter1
+    shelter = shelter1,
+    verified = True
 )
 
 user2 = User(
@@ -222,7 +223,8 @@ user2 = User(
     password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "Marya",
     last_name = "example",
-    shelter = shelter2
+    shelter = shelter2,
+    verified = True
 )
 
 
@@ -231,7 +233,8 @@ user3 = User(
     password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "Matt",
     last_name = "example",
-    shelter = shelter2
+    shelter = shelter2,
+    verified = True
 )
 
 
@@ -263,7 +266,8 @@ test_shelter_user = User(
     password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "test",
     last_name = "user",
-    shelter = test_shelter
+    shelter = test_shelter,
+    verified = True
 )
 test_user = User(
     id=2,
@@ -271,6 +275,7 @@ test_user = User(
     password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
     first_name = "public",
     last_name = "user",
+    verified = True
 )
 
 test_animal_1 = Animal(
