@@ -10,10 +10,10 @@ def test_create_public_user(user_repo):
     """
     repo = user_repo
     
-    email = "test.user@example.com",
-    hashed_password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
-    first_name="test",
-    last_name="user",
+    email = "test.user@example.com"
+    hashed_password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W"
+    first_name="test"
+    last_name="user"
     
     data = {
     "first_name": first_name,
@@ -38,10 +38,10 @@ def test_create_shelter_user(user_repo):
     """
     repo = user_repo
     
-    email = "test.user@example.com",
-    hashed_password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
-    first_name="test",
-    last_name="user",
+    email = "test.user@example.com"
+    hashed_password = "$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W"
+    first_name="test"
+    last_name="user"
     
     data = {
     "first_name": first_name,
