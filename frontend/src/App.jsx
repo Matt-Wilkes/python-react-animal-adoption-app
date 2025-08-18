@@ -11,7 +11,7 @@ import MessagesPage from "./Pages/Messages/MessagesPage"
 import VerifyPage from "./Pages/Verify/VerifyPage"
 import { AuthProvider } from "./components/Context/AuthProvider";
 import '@mui/material/styles/styled'; // patching an issue with vite chunking https://github.com/vitejs/vite/issues/12423
-import VerifySuccessPage from "./Pages/Verify/VerifySuccessPage";
+
 
 
 // alternative to state for passing down to child components
