@@ -19,7 +19,7 @@ def send_verification_email(recipient, pin, token):
     content = Content("text/html", f"""
     <p>Your verification PIN is: <strong>{pin}</strong></p>
     <p>Please confirm your account by clicking the link below:</p>
-    <p><a href="{verification_link}">{verification_link}> Click here to verify </a></p>
+    <p><a href="{verification_link}">Click here to verify</a></p>
     """)
 
     mail = Mail(
