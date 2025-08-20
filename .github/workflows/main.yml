@@ -12,19 +12,20 @@ jobs:
     steps:
       # Each step has a name, some code, and some options
       - name: Check out the code
-        uses: actions/checkout@v3 # This is a reference to some code to run
+        uses: actions/checkout@v4 # This is a reference to some code to run
 
       # This step installs the Python version we want
-      - name: Set up Python 3.11.0
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.11.2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11.0
+          python-version: 3.11.2
 
       # This step installs pip and our dependencies
       - name: Install dependencies
         run: | # Note that there's no reference here — just commands to run
+          cd server
           python -m pip install --upgrade pip
-          pip install -r server/requirements.txt
+          pip install -r requirements.txt
           pip install pytest-mock
 
       # Now we run our tests
