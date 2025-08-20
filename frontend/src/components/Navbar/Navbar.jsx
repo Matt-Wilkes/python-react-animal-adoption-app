@@ -213,8 +213,6 @@ const Navbar = () => {
                   color: '#FFFACA',             
                   '&:hover': {
                     backgroundColor: '#557B71',
-                    marginRight: "1em",
-                    marginLeft: "1em",
                     gap: "1em", 
                   },
                 }}
@@ -230,8 +228,6 @@ const Navbar = () => {
                   color: '#FFFACA',             
                   '&:hover': {
                     backgroundColor: '#557B71',
-                    marginRight: "1em",
-                    marginLeft: "1em",
                     gap: "1em",  
                   },
                 }}
