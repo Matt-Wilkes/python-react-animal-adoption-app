@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {Button, Card, CardContent, CardHeader, Box, TextField, CardActions, Typography } from "@mui/material";
 import PetsIcon from '@mui/icons-material/Pets';
 import { AuthProvider, useAuth } from "../../components/Context/AuthProvider"
+import Alert from "@mui/material/Alert";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
   const [userData, setUserData] = useState("");
   const {token, setToken, isAuthenticated, setIsAuthenticated, login} = useAuth()
   const navigate = useNavigate();
@@ -29,20 +31,22 @@ export const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage("")
       try {
-        const success = await login(email, password)
-        if (success) {
-          navigate('/login')
+        const response = await login(email, password)
+        if (response == true) {
+          navigate('/animals')
+          console.log('success!!!', response)
+        } else {
+          setErrorMessage(response.message)
+          setUserData(null)
+          setPassword("")
         }
-        setEmail("");
-        setPassword("");
-        setError("")
+  
       } catch (err) {
+        console.log(' in trycatch:', err)
         setUserData(null)
-        setError(err.message)
-        setEmail("");
-        setPassword("");
-        navigate("/login");
+        setErrorMessage(err.message)
     }
   };
 
@@ -125,6 +129,16 @@ export const LoginPage = () => {
           </Button>
       </CardActions>
     </Card>
+    {errorMessage && (
+                <Alert 
+                severity="error"
+                sx={{
+                    marginTop: "1em"
+                }}
+                >
+                    {errorMessage}
+                </Alert>
+            )}
     </Box>
     </>
   );

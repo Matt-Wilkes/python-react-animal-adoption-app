@@ -16,11 +16,19 @@ export const loginService = async (email, password) => {
   };
 
   const response = await fetch(`/api/token`, requestOptions);
+
+  const responseJson = await response.json() 
+
   if (response.status !== 200) {
+    const error = responseJson.error
+    
     if (response.status == 401)
-      throw new Error("Username or Password is incorrect");
+      throw new Error(error);
+    else if (response.status == 403) {
+      throw new Error(error);
+    }
     else {
-      throw new Error("Login failed");
+      throw new Error("Login failed: ", error);
     }
   }
 

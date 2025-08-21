@@ -1,9 +1,18 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import select
 
 from lib.models.user import User
 class UserRepository:
     def __init__(self, db_instance: SQLAlchemy):
         self.db = db_instance
+        
+    def get_user_by_id(self, user_id):
+        user = self.db.session.get(User, user_id)
+        return user
+    
+    def get_user_by_email(self, email):
+        user = self.db.session.scalar(select(User).filter_by(email=email))
+        return user
         
     def create_user(self, data):
         

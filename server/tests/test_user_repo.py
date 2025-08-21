@@ -1,6 +1,8 @@
 import pytest
 from sqlalchemy import null
 
+from lib.models.user import User
+
 
 def test_create_public_user(user_repo):
     """
@@ -58,7 +60,53 @@ def test_create_shelter_user(user_repo):
     assert result.last_name == "user"
     assert result.shelter_id is 1
 
+def test_get_user_by_id(user_repo):
+    """
+    Given a valid id,
+    get_user_by_id should return a user
+    """
+    repo = user_repo
+    user_id = 30
     
+    result = repo.get_user_by_id(user_id)
+    assert result.id == 30
+    assert result.email == "user@example.com"
+    assert isinstance(result, User)
+    
+def test_get_user_by_id_returns_none_for_invalid_id(user_repo):
+    """
+    Given an ivalid id,
+    get_user_by_id should return None
+    """
+    repo = user_repo
+    
+    result = repo.get_user_by_id(100)
+    assert result is None
+    
+def test_get_user_by_email(user_repo):
+    """
+    Given a valid email,
+    get_user_by_email should return a user
+    """
+    repo = user_repo
+    email = "user@example.com"
+    
+    result = repo.get_user_by_email(email)
+    assert result.id == 30
+    assert result.email == "user@example.com"
+    assert isinstance(result, User)
+    
+def test_get_user_by_email_returns_none_for_invalid_id(user_repo):
+    """
+    Given an nvalid email,
+    get_user_by_email should return None
+    """
+    repo = user_repo
+    
+    result = repo.get_user_by_email("doesnt.exist@invalid.com")
+    assert result is None
+
+
 def test_update_user(user_repo):
     """
     update_user should update a user in the database
