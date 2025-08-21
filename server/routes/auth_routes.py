@@ -18,8 +18,19 @@ verification_repository = VerificationRepository(db)
 @auth_bp.route('/token', methods=['POST'])
 def login():
     data = request.get_json()
-    token = auth_repository.get_token(data)
-    return token
+    user_email = data['email']
+    user = user_repository.get_user_by_email(user_email)
+    
+    if not user:
+            return jsonify({"error": "Email or password is incorrect"}), 401
+    
+    if user is not None:
+        if user.verified == True:
+            token = auth_repository.get_token(data)
+            return token
+        else:
+            return jsonify({"error": "Please verify your account"}), 403
+        
 
 @auth_bp.route('/logout', methods=['POST'])
 @cross_origin(supports_credentials=True)

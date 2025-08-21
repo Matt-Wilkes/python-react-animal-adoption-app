@@ -193,7 +193,7 @@ def test_verification_token_invalid_for_protected_route(app_ctx, mocker, client)
 
 def test_valid_pin_verifies_user(app_ctx, client, mocker, verification_repo):
     """
-    GIVEN a valid pin
+    GIVEN a valid pin is entered
     POST /verify/token123
     should update 'verified' to true
     """
@@ -216,4 +216,13 @@ def test_valid_pin_verifies_user(app_ctx, client, mocker, verification_repo):
     })
     
     assert response.status_code == 200
+    
+def test_unverified_user_cannot_log_in(client, verification_repo):
+    """
+    GIVEN a user attempts to log in
+    IF 'verified' is False
+    an access token shouldn't be issued
+    """
+    response = client.post('/token', json={"email": "unverified.user@example.com", "password": "V@lidp4ss"})
+    assert response.status_code == 403
     

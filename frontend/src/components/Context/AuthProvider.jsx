@@ -118,7 +118,7 @@ const AuthProvider = ({ children }) => {
       return false;
     } catch (error) {
       setIsAuthenticated(false);
-      return false;
+      return error;
     }
   };
 

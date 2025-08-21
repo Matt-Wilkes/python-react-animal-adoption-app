@@ -50,7 +50,7 @@ def client(app):
 @pytest.fixture
 def test_user(app_ctx):
     hashed_password = flask_bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
-    test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user",shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",domain = "example.com", phone_number = "07123123123"))
+    test_user = User(email = "Unique_test1@example.com",password = hashed_password,first_name = "Unique_test",last_name = "user", verified=True, shelter = Shelter(name = "Example Shelter",location = "South London",email = "info@example.com",domain = "example.com", phone_number = "07123123123"))
     
     db.session.add(test_user)
     db.session.commit()
@@ -61,7 +61,7 @@ def test_user(app_ctx):
     
 def test_public_user(app_ctx):
     hashed_password = flask_bcrypt.generate_password_hash('V@lidp4ss').decode('utf-8') 
-    test_public_user = User(email = "Unique_test2@example333.com",password = hashed_password,first_name = "Unique_test",last_name = "user")
+    test_public_user = User(email = "Unique_test2@example333.com",password = hashed_password,first_name = "Unique_test",last_name = "user", verified=True)
     
     db.session.add(test_public_user)
     db.session.commit()
@@ -214,14 +214,14 @@ def animal_repository(app_ctx, db_connection: DatabaseConnection):
 
 @pytest.fixture
 def user_repo(app_ctx, db_connection: DatabaseConnection):
-    test_public_user = User(email="user@example.com", 
+    test_public_user = User(id=30, email="user@example.com", 
                     password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
-                    first_name="public", last_name="user")
+                    first_name="public", last_name="user", verified=True)
     test_shelter = Shelter(name="Example Shelter", location="South London", 
                           email="info@example.com", domain="example.com", phone_number="07123123123")
     test_shelter_user = User(id=10, email="shelter_user@example.com",
                             password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
-                            first_name="test", last_name="user", shelter=test_shelter)
+                            first_name="test", last_name="user",verified=True, shelter=test_shelter)
     test_unverified_user = User(id=20, email="unverified.user@example.com",
                             password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
                             first_name="test", last_name="user", shelter=test_shelter,verified=False)
@@ -232,17 +232,20 @@ def user_repo(app_ctx, db_connection: DatabaseConnection):
 @pytest.fixture
 def verification_repo(app_ctx, db_connection: DatabaseConnection):
     test_unverified_user = User(id=19,email="public_user@public-example.com", 
-                    password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W",
+                    password="$2b$12$UQntHyyyDPNavpk984PDyu6JjfuE.CqJ8AEkxK4WUx5BbBOrXYtS6",
                     first_name="public", last_name="user", verified=False)
     test_unverified_user_1 = User(id=20, email="unverified.user@example.com",
-                            password="$2b$12$ktcmG68CCpPTv6QgRiqGOOhvjuSmEXjJyJmurK3RhvKTYihVJXM8W", 
+                            password="$2b$12$UQntHyyyDPNavpk984PDyu6JjfuE.CqJ8AEkxK4WUx5BbBOrXYtS6", 
                             first_name="test", last_name="user", verified=False)
+    test_verified_user = User(id=25, email="verified.user@example.com",
+                            password="$2b$12$UQntHyyyDPNavpk984PDyu6JjfuE.CqJ8AEkxK4WUx5BbBOrXYtS6", 
+                            first_name="test", last_name="user", verified=True)
     
     test_verification_item = Verification(id=uuid.UUID('5235c2d2-266a-4851-a48a-777ce595065e'),user_id=20, pin_hash=flask_bcrypt.generate_password_hash('123456').decode('utf-8'))
     
     test_verification_item_2 = Verification(id=uuid.UUID('5a991853-3ff2-48b3-b4f2-d5399324bfd4'),user_id=19, pin_hash=flask_bcrypt.generate_password_hash('123456').decode('utf-8'), used_at=int(time.time()))
     
-    db_connection.seed_db([test_unverified_user_1, test_unverified_user, test_verification_item, test_verification_item_2 ])
+    db_connection.seed_db([test_unverified_user_1, test_unverified_user, test_verification_item, test_verification_item_2, test_verified_user ])
     repo = VerificationRepository(db)
     return repo
 

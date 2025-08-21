@@ -110,10 +110,8 @@ def test_message_reply_user_isnt_duplicated_in_participants(message_repo):
     }
     conversation = db.session.scalar(select(Conversation).filter_by(id=test_conversation_id))
     
-    print(f'conversation before reply:')
     for message in conversation.messages:
         print(message.content)
-    print(f'conversation participants before reply:')
     for participant in  conversation.participants:
         print(participant.id)
     
