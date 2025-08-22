@@ -225,4 +225,35 @@ def test_unverified_user_cannot_log_in(client, verification_repo):
     """
     response = client.post('/token', json={"email": "unverified.user@example.com", "password": "V@lidp4ss"})
     assert response.status_code == 403
+
+
+def test_reverify_with_valid_user_returns_201(client, mocker, verification_repo):
+    
+    mock_data = {
+    "email": "unverified.user@example.com",
+    }
+    
+    mock_send_verification_email = mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    
+    response = client.post('/reverify', json=mock_data)
+    assert response.status_code == 200
+    mock_send_verification_email.assert_called_once()
+    
+def test_reverify_with_valid_user_returns_404(client, mocker, verification_repo):
+    
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/reverify', json=mock_data)
+    assert response.status_code == 404
+    
+def test_reverify_verified_user_returns_500(client, mocker, verification_repo):
+    
+    mock_data = {
+    "email": "verified.user@example.com",
+    }
+    
+    response = client.post('/reverify', json=mock_data)
+    assert response.status_code == 500
     

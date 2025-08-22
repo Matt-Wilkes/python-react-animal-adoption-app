@@ -4,12 +4,15 @@ import {Button, Card, CardContent, CardHeader, Box, TextField, CardActions, Typo
 import PetsIcon from '@mui/icons-material/Pets';
 import { AuthProvider, useAuth } from "../../components/Context/AuthProvider"
 import Alert from "@mui/material/Alert";
+import SendIcon from '@mui/icons-material/Send';
+import { reVerification } from "../../services/authService"
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
+  const [verifySuccess, setVerifySuccess] = useState("")
   const [userData, setUserData] = useState("");
   const {token, setToken, isAuthenticated, setIsAuthenticated, login} = useAuth()
   const navigate = useNavigate();
@@ -31,6 +34,8 @@ export const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const eventId = event.nativeEvent.submitter.id
+    setVerifySuccess("")
     setErrorMessage("")
       try {
         const response = await login(email, password)
@@ -41,14 +46,31 @@ export const LoginPage = () => {
           setErrorMessage(response.message)
           setUserData(null)
           setPassword("")
+          console.log(response.message)
         }
   
       } catch (err) {
         console.log(' in trycatch:', err)
         setUserData(null)
         setErrorMessage(err.message)
+        console.log(err.message)
     }
   };
+
+  const handleReverification = async () => {
+
+    try {
+      const verification = await reVerification(email)
+      console.log('success', verification)
+      setErrorMessage("")
+      setVerifySuccess(verification.message)
+      
+    } catch (error) {
+      setErrorMessage(error.message)
+    }
+    
+
+  }
 
   return (
     <>
@@ -71,7 +93,7 @@ export const LoginPage = () => {
 
       <CardContent
         component="form"
-        id="post-form"
+        id="login-form"
         onSubmit={handleSubmit}
       >
         <Typography variant="h2" sx={{ mb: 2, color: '#003554' }}>Login</Typography>
@@ -105,15 +127,17 @@ export const LoginPage = () => {
           name="password"
           value={password}
           onChange={handlePasswordChange}
-          helperText={error}
+          
+          helperText={errorMessage}
 
         />
       </CardContent>
       <CardActions sx={{ display:"flex" , justifyContent:"right", mr: 1.3}}>
       <Button
             data-testid="_submit-button"
+            id="submit-button"
             type="submit"
-            form="post-form"
+            form="login-form"
             variant="contained"
             sx={{
               fontFamily: 'Arial, sans-serif',
@@ -128,17 +152,42 @@ export const LoginPage = () => {
             Login
           </Button>
       </CardActions>
-    </Card>
-    {errorMessage && (
+      {errorMessage && (
                 <Alert 
                 severity="error"
+                action={
+                <Button 
+                type="button"
+                // form="login-form"
+                data-testid="_error-button"
+                id="error-button"
+                color="error" 
+                size="small"
+                variant="outlined"
+                disableElevation
+                onClick={handleReverification}
+                endIcon={<SendIcon />}
+                >
+               {errorMessage == "Email or password is incorrect" ? "Reset Password" : "Resend"}
+                </Button>}
                 sx={{
-                    marginTop: "1em"
+                    marginTop: "1em",
                 }}
                 >
                     {errorMessage}
                 </Alert>
             )}
+      {verifySuccess && (
+                <Alert 
+                severity="success"
+                sx={{
+                    marginTop: "1em",
+                }}
+                >
+                    {verifySuccess}
+                </Alert>
+            )}
+    </Card>
     </Box>
     </>
   );

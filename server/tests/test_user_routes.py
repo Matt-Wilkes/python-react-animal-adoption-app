@@ -120,3 +120,5 @@ def test_signup_add_verification_is_called(client, mocker, db_connection):
     response = client.post('/sign-up', json=mock_data)
     assert response.status_code == 201
     mock_add_verification.assert_called_once()
+    
+    
