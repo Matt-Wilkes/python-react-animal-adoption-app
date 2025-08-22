@@ -10,11 +10,19 @@ from lib.models.auth_repository import AuthRepository
 from lib.models import User
 from lib.models.user_repository import UserRepository
 from lib.models.verification_repository import VerificationRepository
+from helpers.helpers import generate_pin
+from utils.sendgrid_api_client import send_verification_email
 
 auth_bp = Blueprint('auth_bp', __name__)
 auth_repository = AuthRepository(db, flask_bcrypt)
 user_repository = UserRepository(db)
 verification_repository = VerificationRepository(db)
+
+@auth_bp.route('/protected', methods=['GET'])
+@token_checker
+def protected_route():
+    return jsonify({"message": f"Access granted, user_id: {request}"}), 200
+
 @auth_bp.route('/token', methods=['POST'])
 def login():
     data = request.get_json()
@@ -77,7 +85,28 @@ def verify():
         else:
             return jsonify({"error": "invalid pin"}), 400
     
-@auth_bp.route('/protected', methods=['GET'])
-@token_checker
-def protected_route():
-    return jsonify({"message": f"Access granted, user_id: {request}"}), 200
+@auth_bp.route('/reverify', methods=['POST'])
+def reVerify():
+    data = request.get_json()
+    email = data['email']
+    user = user_repository.get_user_by_email(email)
+    
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    if user.verified == True:
+        return jsonify({"error": "User is already verified"}), 500
+    
+    plain_pin, hashed_pin = generate_pin()
+    
+    verification = verification_repository.add_verification(user.id, hashed_pin)
+
+    verification_token = generate_token(verification.id, token_type='verification')
+    
+    send_grid_status_code = send_verification_email(user.email, plain_pin, verification_token)
+    
+    if send_grid_status_code == 202:
+        return jsonify({"message": "Check your email to verify your account"}), 200
+    else:
+        return jsonify({"error": "Failed to send verification email"}), 500
+    
