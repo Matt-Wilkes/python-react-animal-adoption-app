@@ -17,22 +17,17 @@ export const loginService = async (email, password) => {
 
   const response = await fetch(`/api/token`, requestOptions);
 
-  const responseJson = await response.json() 
+  const data = await response.json() 
 
   if (response.status !== 200) {
-    const error = responseJson.error
-    
-    if (response.status == 401)
-      throw new Error(error);
-    else if (response.status == 403) {
-      throw new Error(error);
+    if (response.status == (401 || 403) ) {
+      throw new Error(data.error);
     }
     else {
       throw new Error("Login failed: ", error);
     }
   }
 
-  const data = await response.json();
   return data;
 };
 
