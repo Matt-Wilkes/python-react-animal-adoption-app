@@ -14,7 +14,7 @@ export const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState("")
   const [verifySuccess, setVerifySuccess] = useState("")
   const [userData, setUserData] = useState("");
-  const {token, setToken, isAuthenticated, setIsAuthenticated, login} = useAuth()
+  const {isAuthenticated, login} = useAuth()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const LoginPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const eventId = event.nativeEvent.submitter.id
+    // const eventId = event.nativeEvent.submitter.id
     setVerifySuccess("")
     setErrorMessage("")
       try {
