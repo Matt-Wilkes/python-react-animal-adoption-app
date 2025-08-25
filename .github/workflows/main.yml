@@ -41,4 +41,6 @@ jobs:
             DATABASE_HOST: "localhost"
             TEST_DATABASE_NAME: "animal_adoption_app_test"
             FLASK_ENV: "testing"
+            DEV_URL: "http://localhost:5173"
             SENDGRID_TEST_RECIPIENT: ${{ secrets.SENDGRID_TEST_RECIPIENT }}
+            SENDGRID_FROM_EMAIL: ${{secrets.SENDGRID_FROM_EMAIL}}

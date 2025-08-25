@@ -4,6 +4,9 @@ import {
   logoutService,
   refreshToken,
   signupService,
+  sendForgottenPassword,
+  verifyService,
+  reVerification
 } from "../../services/authService";
 import { jwtDecode } from "jwt-decode";
 
@@ -200,6 +203,9 @@ const AuthProvider = ({ children }) => {
     login: handleLogin,
     logout: handleLogout,
     authFetch: authFetch,
+    verifyService: verifyService,
+    reVerification: reVerification,
+    sendForgottenPassword: sendForgottenPassword
   };
 
   return (

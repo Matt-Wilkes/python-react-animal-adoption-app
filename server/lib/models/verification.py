@@ -14,6 +14,7 @@ class Verification(Base):
     created_at: Mapped[int] = mapped_column(Integer, default=lambda: int(time.time()))
     used_at: Mapped[int] = mapped_column(Integer, nullable=True)
     expires_at: Mapped[int] = mapped_column(Integer, default=lambda: int(time.time()) + 900) 
+    type: Mapped[str] = mapped_column(String, nullable=False, default='verification')
 
     def __repr__(self):
-        return f"Verification(id={self.id!r}, created_at:{self.created_at!r}, expires_at{self.expires_at!r})"
+        return f"Verification(id={self.id!r}, created_at:{self.created_at!r}, expires_at{self.expires_at!r}, type={self.type!r})"

@@ -109,4 +109,21 @@ def reVerify():
         return jsonify({"message": "Check your email to verify your account"}), 200
     else:
         return jsonify({"error": "Failed to send verification email"}), 500
+
+@auth_bp.route('/forgotten-password', methods=['POST'])
+def forgotten_password():
+    data = request.get_json()
+    email = data['email']
+    user = user_repository.get_user_by_email(email)
     
+    if user:
+        plain_pin, hashed_pin = generate_pin()
+        verification = verification_repository.add_verification(user.id, hashed_pin, verification_type='forgotten-password')
+        verification_token = generate_token(verification.id, token_type='verification')
+        send_grid_status_code = send_verification_email(user.email, plain_pin, verification_token, type='forgotten-password')
+        if send_grid_status_code == 202:
+            jsonify({"message": "Please check your email"}), 200
+        else:
+            return jsonify({"error": "Failed to send verification email"}), 500
+        
+    return jsonify({"message": "Please check your email"}), 200

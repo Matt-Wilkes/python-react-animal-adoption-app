@@ -8,10 +8,11 @@ class VerificationRepository:
     def __init__(self, db_instance: SQLAlchemy):
         self.db = db_instance
         
-    def add_verification(self, user_id, hashed_pin):
+    def add_verification(self, user_id, hashed_pin, verification_type='verification'):
         verification = Verification(
             user_id=user_id,
-            pin_hash=hashed_pin
+            pin_hash=hashed_pin,
+            type=verification_type
         )
         self.db.session.add(verification)
         self.db.session.commit()

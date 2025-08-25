@@ -227,7 +227,7 @@ def test_unverified_user_cannot_log_in(client, verification_repo):
     assert response.status_code == 403
 
 
-def test_reverify_with_valid_user_returns_201(client, mocker, verification_repo):
+def test_reverify_with_valid_user_returns_200(client, mocker, verification_repo):
     
     mock_data = {
     "email": "unverified.user@example.com",
@@ -256,4 +256,159 @@ def test_reverify_verified_user_returns_500(client, mocker, verification_repo):
     
     response = client.post('/reverify', json=mock_data)
     assert response.status_code == 500
+
+def test_forgotten_password_route_returns_200(client, verification_repo): 
+    """
+    POST /forgotten-password 
+    SHOULD return status code 200
+    EVEN IF an email address doesn't exist
+    """
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
     
+    response = client.post('/forgotten-password', json=mock_data)
+    assert response.status_code == 200
+    
+def test_forgotten_password_route_returns_success_message(client, verification_repo):
+    """
+    POST /forgotten-password 
+    SHOULD return message asking user to check their account
+    """
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    response_json = response.get_json()
+    print(response_json)
+    assert 'Please check your email' in response_json['message']
+    
+def test_forgotten_password_generates_pin(client, mocker, verification_repo):
+    """
+    GIVEN an email address exists in the db
+    POST /forgotten-password
+    SHOULD generate a pin
+    """
+    mock_generate_pin = mocker.patch('routes.auth_routes.generate_pin', return_value=('123456', 'hashed_pin'))
+    mock_send_verification_email = mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    mock_data = {
+    "email": "verified.user@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_generate_pin.assert_called_once()
+
+def test_forgotten_password_invalid_email_doesnt_generate_pin(client, mocker, verification_repo):    
+    """
+    GIVEN an email address doesn't exist in the db
+    POST /forgotten-password
+    SHOULD NOT generate a pin
+    """
+    mock_generate_pin = mocker.patch('routes.auth_routes.generate_pin', return_value=('123456', 'hashed_pin'))
+     
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_generate_pin.assert_not_called()
+
+def test_forgotten_password_valid_user_verification_entry_created(mocker,client,  verification_repo):
+    mock_verification = mocker.Mock()
+    mock_verification_entry = mocker.patch('routes.auth_routes.verification_repository.add_verification', return_value=mock_verification)
+    mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    mock_data = {
+    "email": "verified.user@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_verification_entry.assert_called_once()
+    
+def test_forgotten_password_invalid_user_verification_entry_not_created(mocker,client,  verification_repo):
+    mock_verification = mocker.Mock()
+    mock_verification_entry = mocker.patch('routes.auth_routes.verification_repository.add_verification', return_value=mock_verification)
+    
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_verification_entry.assert_not_called()
+    
+def test_forgotten_password_generates_token(mocker, client, verification_repo):
+    """
+    GIVEN an email address doesn't exist in the db
+    POST /forgotten-password
+    SHOULD NOT generate a token
+    """
+    mock_token = mocker.Mock()
+    mock_generate_token = mocker.patch('routes.auth_routes.generate_token', return_value=mock_token)
+    mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    mock_data = {
+    "email": "verified.user@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_generate_token.assert_called_once()
+    
+def test_forgotten_password_doesnt_generate_token(client, mocker, verification_repo):
+    """
+    GIVEN an email address doesn't exist in the db
+    POST /forgotten-password
+    SHOULD NOT generate a token
+    """
+    mock_token = mocker.Mock()
+    mock_generate_token = mocker.patch('routes.auth_routes.generate_token', return_value=mock_token)
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_generate_token.assert_not_called()
+
+
+def test_forgotten_password_email_is_sent(client, mocker, verification_repo):
+    """
+    GIVEN an email address exists in the db
+    POST /forgotten-password
+    SHOULD send a forgotten password email
+    """
+    
+    mock_send_verification_email = mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    mocker.patch('routes.auth_routes.generate_pin', return_value=('123456', 'hashed_pin'))
+    mocker.patch('routes.auth_routes.generate_token', return_value='mock_jwt_token')
+    mock_data = {
+    "email": "verified.user@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_send_verification_email.assert_called_once_with(
+        "verified.user@example.com",
+        "123456",
+        "mock_jwt_token",
+        type='forgotten-password'
+    )
+    
+def test_forgotten_password_email_not_sent_for_invalid_user(client, mocker, verification_repo):
+    """
+    GIVEN an email address doesn't exist in the db
+    POST /forgotten-password
+    SHOULD NOT send a forgotten password email
+    """
+    mock_send_verification_email = mocker.patch('routes.auth_routes.send_verification_email', return_value=202)
+    
+    mock_data = {
+    "email": "doesnt.exist@example.com",
+    }
+    
+    response = client.post('/forgotten-password', json=mock_data)
+    
+    mock_send_verification_email.assert_not_called()

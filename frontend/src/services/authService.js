@@ -114,6 +114,31 @@ export const reVerification = async (email) => {
   return data
 }
 
+export const sendForgottenPassword = async (email) => {
+  const payload = {
+    email: email,
+  };
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    credentials: "include",
+  };
+
+  const response = await fetch(`/api/forgotten-password`, requestOptions);
+
+  const data = await response.json()
+
+  if (response.status!== 200) {
+    console.log('not 200', data.error)
+    throw new Error(data.error)
+  } 
+
+  return data
+}
+
 export const logoutService = async () => {
   const requestOptions = {
     method: "POST",
