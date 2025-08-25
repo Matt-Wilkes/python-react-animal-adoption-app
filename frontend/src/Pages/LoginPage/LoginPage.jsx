@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import {Button, Card, CardContent, CardHeader, Box, TextField, CardActions, Typography } from "@mui/material";
 import PetsIcon from '@mui/icons-material/Pets';
 import { AuthProvider, useAuth } from "../../components/Context/AuthProvider"
 import Alert from "@mui/material/Alert";
 import SendIcon from '@mui/icons-material/Send';
-import { reVerification } from "../../services/authService"
+import Link from '@mui/material/Link';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState("")
   const [verifySuccess, setVerifySuccess] = useState("")
   const [userData, setUserData] = useState("");
-  const {isAuthenticated, login} = useAuth()
+  const {isAuthenticated, login, reVerification} = useAuth()
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export const LoginPage = () => {
                 onClick={handleReverification}
                 endIcon={<SendIcon />}
                 >
-               {errorMessage == "Email or password is incorrect" ? "Reset Password" : "Resend"}
+              {errorMessage == "Email or password is incorrect" ? "Reset Password" : "Resend"}
                 </Button>}
                 sx={{
                     marginTop: "1em",
@@ -188,6 +188,13 @@ export const LoginPage = () => {
                 </Alert>
             )}
     </Card>
+      <Link
+      marginTop={'1em'}
+      component={RouterLink} 
+      to={"/forgotten-password"}
+      >
+      Forgotten Password?
+      </Link>
     </Box>
     </>
   );

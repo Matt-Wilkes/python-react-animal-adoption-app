@@ -6,28 +6,43 @@ from sendgrid.helpers.mail import *
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 
 
-def send_verification_email(recipient, pin, token):
-    verification_link = f"http://localhost:5173/verify?token={token}"
+def send_verification_email(recipient, pin, token, type):
     
     current_env = os.getenv("ENV")
     
     if current_env == 'development':
         print("development env")
         recipient = os.getenv("SENDGRID_TEST_RECIPIENT")
+        from_email= os.getenv("SENDGRID_TEST_SENDER")
+        url = os.getenv("DEV_URL")
+    else:
+        from_email=os.getenv("SENDGRID_FROM_EMAIL")
+        url = os.getenv("PROD_URL")
    
+    if type == 'verification':
+        verification_link = f"{url}/verify?token={token}"
+        content = Content("text/html", f"""
+        <p>Your verification PIN is: <strong>{pin}</strong></p>
+        <p>Please confirm your account by clicking the link below:</p>
+        <p><a href="{verification_link}"> Click here to verify </a></p>
+        """)
+        subject=f'Your verification pin: {pin}'
     
-    content = Content("text/html", f"""
-    <p>Your verification PIN is: <strong>{pin}</strong></p>
-    <p>Please confirm your account by clicking the link below:</p>
-    <p><a href="{verification_link}">{verification_link}> Click here to verify </a></p>
-    """)
+    if type == 'forgotten-password':
+        verification_link = f"{url}/password-reset?token={token}"
+        content = Content("text/html", f"""
+        <p"Your password reset PIN is: <strong>{pin}</strong></p>
+        <p>Please follow the password reset link below:</p>
+        <p><a href="{verification_link}"> Click here to reset your password </a></p>
+        """)
+        subject='Reset your password'
 
     mail = Mail(
-        from_email=Email('mattwilkesdev@gmail.com'),
+        from_email=Email(from_email),
         to_emails=To(recipient),
-        subject='Verify Your Email',
+        subject=subject,
         html_content=content
-    )
+        )
 
     try:
         print("attempting to send email")

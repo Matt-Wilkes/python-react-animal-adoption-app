@@ -15,6 +15,36 @@ def test_add_verification(verification_repo):
     
     assert result.user_id == 19
     assert result.pin_hash == hashed_pin
+    
+def test_add_verification_has_type_of_verification(verification_repo):
+    """
+    GIVEN no arguments
+    SHOULD add a new verification entry to db
+    with a type of 'verification'
+    """
+    repo = verification_repo
+    user_id = 19
+    _, hashed_pin = generate_pin()
+    
+    result = repo.add_verification(user_id, hashed_pin)
+    
+    assert result.pin_hash == hashed_pin
+    assert result.type == 'verification'
+    
+def test_add_verification_has_type_of_reset(verification_repo):
+    """
+    GIVEN an argument of 'reset'
+    SHOULD add a new verification entry to db
+    with a type of 'reset'
+    """
+    repo = verification_repo
+    user_id = 19
+    _, hashed_pin = generate_pin()
+    
+    result = repo.add_verification(user_id, hashed_pin, verification_type='reset')
+    
+    assert result.pin_hash == hashed_pin
+    assert result.type == 'reset'
 
 def test_get_verification_by_id(verification_repo):
     """

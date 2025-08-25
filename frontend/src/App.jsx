@@ -11,6 +11,8 @@ import MessagesPage from "./Pages/Messages/MessagesPage"
 import VerifyPage from "./Pages/Verify/VerifyPage"
 import { AuthProvider } from "./components/Context/AuthProvider";
 import '@mui/material/styles/styled'; // patching an issue with vite chunking https://github.com/vitejs/vite/issues/12423
+import PasswordResetPage from "./Pages/PasswordResetPage/PasswordResetPage";
+import ForgottenPasswordPage from "./Pages/ForgottenPasswordPage/ForgottenPasswordPage";
 
 
 
@@ -57,7 +59,6 @@ const router = createBrowserRouter([
         path: "animals/:id",
         element: <AnimalAdvertPage />,
       },
-
       {
         path: "create-advert",
         element: <CreateAdvertPage />,
@@ -65,6 +66,14 @@ const router = createBrowserRouter([
       {
         path: "messages",
         element: <MessagesPage />,
+      },
+      {
+        path: "password-reset",
+        element: <PasswordResetPage />,
+      },
+      {
+        path: "forgotten-password",
+        element: <ForgottenPasswordPage />,
       },
     ],
   },
