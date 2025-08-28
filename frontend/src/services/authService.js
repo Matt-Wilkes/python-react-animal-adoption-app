@@ -20,11 +20,11 @@ export const loginService = async (email, password) => {
   const data = await response.json() 
 
   if (response.status !== 200) {
-    if (response.status == (401 || 403) ) {
+    if (response.status == 403 || response.status == 401 ) {
       throw new Error(data.error);
     }
     else {
-      throw new Error("Login failed: ", error);
+      throw new Error("Login failed: ", data.error);
     }
   }
 
